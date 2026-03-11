@@ -1,0 +1,29 @@
+package com.quiz_game.responses;
+
+import com.quiz_game.entities.BidEntity;
+import com.quiz_game.entities.PostEntity;
+
+import java.util.List;
+
+public class ProffesionalPostsResponse extends BasicResponse {
+    private List<PostModel> posts;
+
+    public ProffesionalPostsResponse() {
+    }
+
+    public ProffesionalPostsResponse(boolean success, Integer errorCode, List<PostEntity> posts, List<BidEntity> bidEntities) {
+        super(success, errorCode);
+        this.posts = posts.stream().map(item -> {
+            return new PostModel(item, bidEntities.stream().filter(bid -> bid.getPostEntity().getId() == item.getId()).toList());
+        }).toList();
+    }
+
+
+    public List<PostModel> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<PostModel> posts) {
+        this.posts = posts;
+    }
+}
