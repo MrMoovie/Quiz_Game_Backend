@@ -1,2 +1,30 @@
 # Project exclude paths
 /target/
+# ==========================================
+# Java & Spring Boot
+# ==========================================
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.log
+
+# ==========================================
+# IDEs (IntelliJ, VS Code, Eclipse)
+# ==========================================
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+
+# ==========================================
+# Operating System Files
+# ==========================================
+.DS_Store
+Thumbs.db
