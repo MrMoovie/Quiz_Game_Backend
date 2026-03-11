@@ -1,6 +1,6 @@
 package com.quiz_game.entities;
 
-public class GameEntity extends BaseEntity{
+public class RaceEntity extends BaseEntity{
     private SessionEntity session;
     private StudentEntity student;
     private int score;
@@ -8,6 +8,7 @@ public class GameEntity extends BaseEntity{
     // 0 - regular 1 - highway 2 - dirt road
     private int pathChance;
     private int powerUp;
+    private int position;
 
     public SessionEntity getSession() {
         return session;
@@ -55,5 +56,13 @@ public class GameEntity extends BaseEntity{
 
     public void setPowerUp(int powerUp) {
         this.powerUp = powerUp;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

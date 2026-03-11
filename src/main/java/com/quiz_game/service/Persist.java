@@ -79,6 +79,27 @@ public class Persist {
 
 
 
+    public ClientEntity getStudentByUsernameAndPassword(String username, String password) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM StudentEntity  " +
+                        "WHERE username = :username " +
+                        "AND password = :password", ClientEntity.class)
+                .setParameter("username", username)
+                .setParameter("password", password)
+                .uniqueResult();
+    }
+
+
+    public ClientEntity getTeacherByUsernameAndPassword(String username, String password) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM TeacherEntity  " +
+                        "WHERE username = :username " +
+                        "AND password = :password", ClientEntity.class)
+                .setParameter("username", username)
+                .setParameter("password", password)
+                .uniqueResult();
+    }
+
     public ClientEntity getUserByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM ClientEntity  " +

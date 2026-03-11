@@ -5,6 +5,8 @@ public class SessionEntity extends BaseEntity{
     private String entryCode;
     private boolean isOpen;
     private int maxCapacity;
+    private int status;
+    // 0-LOBBY 1-RUNNING 2-FINISHED
 
     public TeacherEntity getTeacher() {
         return teacher;
@@ -36,5 +38,13 @@ public class SessionEntity extends BaseEntity{
 
     public void setMaxCapacity(int maxCapacity) {
         this.maxCapacity = maxCapacity;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
