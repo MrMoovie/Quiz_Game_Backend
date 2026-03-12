@@ -6,7 +6,8 @@ public class Errors {
     public static final int ERROR_NOT_AUTHORIZED = 1003;
     public static final int ERROR_USERNAME_ALREADY_EXISTS = 1004;
     public static final int ERROR_MISSING_VALUES = 1005;
-    public static final int ERROR_POST_NOT_FOUND = 1005;
+    public static final int ERROR_POST_NOT_FOUND = 1006;
+    public static final int ERROR_RACE_AND_TEACHER_DOESNT_MATCH= 1007;
 
 
 

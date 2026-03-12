@@ -168,7 +168,19 @@ public class Persist {
                 .getResultList();
     }
 
+    public boolean isTeacherHostingRace(TeacherEntity teacherEntity, int raceId) {
+        Long count = this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT count(r) FROM RaceEntity r " +
+                        "WHERE r.id = :raceId " +
+                        "AND r.teacher.id = :teacherId", Long.class)
+                .setParameter("raceId", raceId)
+                .setParameter("teacherId", teacherEntity.getId())
+                .uniqueResult();
 
+        return count != null && count > 0;
+
+
+    }
     public ProffesionalEntity getProfessionalByToken(String token) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM ProffesionalEntity " +

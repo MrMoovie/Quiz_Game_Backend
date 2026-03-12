@@ -35,6 +35,7 @@ public class GameController {
         List<StudentEntity> studenList = persist.getAllStudentsByRaceID(raceId);
         return new RaceStudentsResponse(true,null, studenList);
     }
+//    @RequestMapping("/start-game")
 
     /// צריך ליצור פוקנציה שבודקת מה הסטטוס של המרוץ
 

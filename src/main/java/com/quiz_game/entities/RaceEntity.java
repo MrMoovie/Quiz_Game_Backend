@@ -6,7 +6,7 @@ import java.util.List;
 public class RaceEntity extends BaseEntity{
     private TeacherEntity teacher;
     private String entryCode;
-    private boolean isOpen;
+    private boolean isOpen;           ///need to be deleted
     private int maxCapacity;
     private int status;
     private List<TrackEntity> tracks = new ArrayList<>();
