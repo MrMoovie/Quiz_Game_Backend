@@ -1,68 +1,63 @@
 package com.quiz_game.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RaceEntity extends BaseEntity{
-    private SessionEntity session;
-    private StudentEntity student;
-    private int score;
-    private int path;
-    // 0 - regular 1 - highway 2 - dirt road
-    private int pathChance;
-    private int powerUp;
-    private int position;
+    private TeacherEntity teacher;
+    private String entryCode;
+    private boolean isOpen;
+    private int maxCapacity;
+    private int status;
+    private List<TrackEntity> races = new ArrayList<>();
+    // 0-LOBBY 1-RUNNING 2-FINISHED
 
-    public SessionEntity getSession() {
-        return session;
+    public TeacherEntity getTeacher() {
+        return teacher;
     }
 
-    public void setSession(SessionEntity session) {
-        this.session = session;
+    public void setTeacher(TeacherEntity teacher) {
+        this.teacher = teacher;
     }
 
-    public StudentEntity getStudent() {
-        return student;
+    public String getEntryCode() {
+        return entryCode;
     }
 
-    public void setStudent(StudentEntity student) {
-        this.student = student;
+    public void setEntryCode(String entryCode) {
+        this.entryCode = entryCode;
     }
 
-    public int getScore() {
-        return score;
+    public boolean isOpen() {
+        return isOpen;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void setOpen(boolean open) {
+        isOpen = open;
     }
 
-    public int getPath() {
-        return path;
+    public int getMaxCapacity() {
+        return maxCapacity;
     }
 
-    public void setPath(int path) {
-        this.path = path;
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
     }
 
-    public int getPathChance() {
-        return pathChance;
+    public int getStatus() {
+        return status;
     }
 
-    public void setPathChance(int pathChance) {
-        this.pathChance = pathChance;
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    public List<TrackEntity> getRaces() {
+        return races;
     }
 
-    public int getPowerUp() {
-        return powerUp;
+    public void setRaces(List<TrackEntity> races) {
+        this.races = races;
     }
 
-    public void setPowerUp(int powerUp) {
-        this.powerUp = powerUp;
-    }
 
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
 }

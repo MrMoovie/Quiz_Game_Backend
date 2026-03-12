@@ -3,13 +3,13 @@ package com.quiz_game.entities;
 import java.util.List;
 
 public class TeacherEntity extends BasicUser{
-    List<SessionEntity> sessionHistory;
+    private List<RaceEntity> sessions;
 
-    public List<SessionEntity> getSessionHistory() {
-        return sessionHistory;
+    public List<RaceEntity> getSessions() {
+        return sessions;
     }
 
-    public void setSessionHistory(List<SessionEntity> sessionHistory) {
-        this.sessionHistory = sessionHistory;
+    public void setSessions(List<RaceEntity> sessions) {
+        this.sessions = sessions;
     }
 }

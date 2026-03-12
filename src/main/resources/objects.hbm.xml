@@ -20,7 +20,7 @@
 
         <bag name="gameHistory" inverse="true" cascade="all">
             <key column="student_id"/>
-            <one-to-many class="com.quiz_game.entities.RaceEntity"/>
+            <one-to-many class="com.quiz_game.entities.TrackEntity"/>
         </bag>
     </class>
 
@@ -38,53 +38,53 @@
         <property name="fullName" type="string" column="full_name"/>
         <property name="token" type="string" column="token"/>
 
-        <bag name="sessionHistory" inverse="true" cascade="all">
+        <bag name="sessions" inverse="true" cascade="all">
             <key column="teacher_id"/>
-            <one-to-many class="com.quiz_game.entities.SessionEntity"/>
+            <one-to-many class="com.quiz_game.entities.RaceEntity"/>
         </bag>
     </class>
 
-    <class name="com.quiz_game.entities.ClassroomEntity" table="classrooms" lazy="false">
-        <id name="id" type="int" column="id">
-            <generator class="native"/>
-        </id>
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
-        <!--        </property>-->
+<!--    <class name="com.quiz_game.entities.ClassroomEntity" table="classrooms" lazy="false">-->
+<!--        <id name="id" type="int" column="id">-->
+<!--            <generator class="native"/>-->
+<!--        </id>-->
+<!--        &lt;!&ndash;        <property name="creationDate" type="timestamp" column="creation_date"/>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <property name="deleted" type="boolean">&ndash;&gt;-->
+<!--        &lt;!&ndash;            <column name="deleted" default="false"/>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </property>&ndash;&gt;-->
 
-        <property name="className" type="string" column="class_name"/>
-    </class>
+<!--        <property name="className" type="string" column="class_name"/>-->
+<!--    </class>-->
 
-    <class name="com.quiz_game.entities.ClassStudentsEntity" table="class_student" lazy="false">
-        <id name="id" type="int" column="id">
-            <generator class="native"/>
-        </id>
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
-        <!--        </property>-->
-        <many-to-one name="classroom" class="com.quiz_game.entities.ClassroomEntity" column="classroom_id"/>
+<!--    <class name="com.quiz_game.entities.ClassStudentsEntity" table="class_student" lazy="false">-->
+<!--        <id name="id" type="int" column="id">-->
+<!--            <generator class="native"/>-->
+<!--        </id>-->
+<!--        &lt;!&ndash;        <property name="creationDate" type="timestamp" column="creation_date"/>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <property name="deleted" type="boolean">&ndash;&gt;-->
+<!--        &lt;!&ndash;            <column name="deleted" default="false"/>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </property>&ndash;&gt;-->
+<!--        <many-to-one name="classroom" class="com.quiz_game.entities.ClassroomEntity" column="classroom_id"/>-->
 
-        <many-to-one name="student" class="com.quiz_game.entities.StudentEntity" column="student_id"/>
-    </class>
+<!--        <many-to-one name="student" class="com.quiz_game.entities.StudentEntity" column="student_id"/>-->
+<!--    </class>-->
 
-    <class name="com.quiz_game.entities.ClassTeachersEntity" table="class_teacher" lazy="false">
-        <id name="id" type="int" column="id">
-            <generator class="native"/>
-        </id>
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
-        <!--        </property>-->
-        <many-to-one name="classroom" class="com.quiz_game.entities.ClassroomEntity" column="classroom_id"/>
+<!--    <class name="com.quiz_game.entities.ClassTeachersEntity" table="class_teacher" lazy="false">-->
+<!--        <id name="id" type="int" column="id">-->
+<!--            <generator class="native"/>-->
+<!--        </id>-->
+<!--        &lt;!&ndash;        <property name="creationDate" type="timestamp" column="creation_date"/>&ndash;&gt;-->
+<!--        &lt;!&ndash;        <property name="deleted" type="boolean">&ndash;&gt;-->
+<!--        &lt;!&ndash;            <column name="deleted" default="false"/>&ndash;&gt;-->
+<!--        &lt;!&ndash;        </property>&ndash;&gt;-->
+<!--        <many-to-one name="classroom" class="com.quiz_game.entities.ClassroomEntity" column="classroom_id"/>-->
 
-        <many-to-one name="teacher" class="com.quiz_game.entities.TeacherEntity" column="teacher_id"/>
-    </class>
+<!--        <many-to-one name="teacher" class="com.quiz_game.entities.TeacherEntity" column="teacher_id"/>-->
+<!--    </class>-->
 
 
 
-    <class name="com.quiz_game.entities.SessionEntity" table="sessions" lazy="false">
+    <class name="com.quiz_game.entities.RaceEntity" table="races" lazy="false">
         <id name="id" type="int" column="id">
             <generator class="native"/>
         </id>
@@ -106,14 +106,18 @@
             <column name="status" default="0"/>
         </property>
 
+        <bag name="races" inverse="true" cascade="all">
+            <key column="session_id"/> <one-to-many class="com.quiz_game.entities.TrackEntity"/>
+        </bag>
+
     </class>
 
-    <class name="com.quiz_game.entities.RaceEntity" table="races" lazy="false">
+    <class name="com.quiz_game.entities.TrackEntity" table="tracks" lazy="false">
         <id name="id" type="int" column="id">
             <generator class="native"/>
         </id>
         <many-to-one name="student" class="com.quiz_game.entities.StudentEntity" column="student_id"/>
-        <many-to-one name="session" class="com.quiz_game.entities.SessionEntity" column="session_id"/>
+        <many-to-one name="session" class="com.quiz_game.entities.RaceEntity" column="session_id"/>
         <property name="score" type="int" column="score"/>
         <!--        </property>-->
         <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->

@@ -151,6 +151,22 @@ public class Persist {
                 .setParameter("token", token)
                 .uniqueResult();
     }
+    public TeacherEntity getTeacherByToken(String token) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM TeacherEntity " +
+                        "WHERE token = :token", TeacherEntity.class)
+                .setParameter("token", token)
+                .uniqueResult();
+    }
+
+    public List<StudentEntity> getAllStudentsBySessionID(int sessionId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT r.student FROM RaceEntity r " +
+                        "WHERE r.session.id = :sessionId", StudentEntity.class)
+                .setParameter("sessionId", sessionId)
+                .getResultList();
+    }
+
 
     public ProffesionalEntity getProfessionalByToken(String token) {
         return this.sessionFactory.getCurrentSession()
