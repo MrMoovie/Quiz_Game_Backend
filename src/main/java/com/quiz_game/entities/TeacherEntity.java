@@ -5,11 +5,11 @@ import java.util.List;
 public class TeacherEntity extends BasicUser{
     private List<RaceEntity> races;
 
-    public List<RaceEntity> getSessions() {
+    public List<RaceEntity> getRaces() {
         return races;
     }
 
-    public void setSessions(List<RaceEntity> sessions) {
-        this.races = sessions;
+    public void setRaces(List<RaceEntity> races) {
+        this.races = races;
     }
 }

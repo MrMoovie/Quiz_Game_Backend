@@ -55,8 +55,8 @@ public class RaceEntity extends BaseEntity{
         return tracks;
     }
 
-    public void setRaces(List<TrackEntity> races) {
-        this.tracks = races;
+    public void setTracks(List<TrackEntity> tracks) {
+        this.tracks = tracks;
     }
 
 
