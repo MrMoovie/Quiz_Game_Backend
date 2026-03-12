@@ -1,7 +1,7 @@
 package com.quiz_game.entities;
 
 public class TrackEntity extends BaseEntity{
-    private RaceEntity session;
+    private RaceEntity race;
     private StudentEntity student;
     private int score;
     private int path;
@@ -10,12 +10,12 @@ public class TrackEntity extends BaseEntity{
     private int powerUp;
     private int position;
 
-    public RaceEntity getSession() {
-        return session;
+    public RaceEntity getRace() {
+        return race;
     }
 
-    public void setSession(RaceEntity session) {
-        this.session = session;
+    public void setRace(RaceEntity race) {
+        this.race = race;
     }
 
     public StudentEntity getStudent() {

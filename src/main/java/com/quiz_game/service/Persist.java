@@ -159,11 +159,12 @@ public class Persist {
                 .uniqueResult();
     }
 
-    public List<StudentEntity> getAllStudentsBySessionID(int sessionId) {
+
+    public List<StudentEntity> getAllStudentsByRaceID(int raceId) {
         return this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT r.student FROM RaceEntity r " +
-                        "WHERE r.session.id = :sessionId", StudentEntity.class)
-                .setParameter("sessionId", sessionId)
+                .createQuery("SELECT r.student FROM TrackEntity r " +
+                        "WHERE r.race.id = :raceId", StudentEntity.class)
+                .setParameter("raceId", raceId)
                 .getResultList();
     }
 

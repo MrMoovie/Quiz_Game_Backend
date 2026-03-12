@@ -9,7 +9,7 @@ public class RaceEntity extends BaseEntity{
     private boolean isOpen;
     private int maxCapacity;
     private int status;
-    private List<TrackEntity> races = new ArrayList<>();
+    private List<TrackEntity> tracks = new ArrayList<>();
     // 0-LOBBY 1-RUNNING 2-FINISHED
 
     public TeacherEntity getTeacher() {
@@ -51,12 +51,12 @@ public class RaceEntity extends BaseEntity{
     public void setStatus(int status) {
         this.status = status;
     }
-    public List<TrackEntity> getRaces() {
-        return races;
+    public List<TrackEntity> getTracks() {
+        return tracks;
     }
 
     public void setRaces(List<TrackEntity> races) {
-        this.races = races;
+        this.tracks = races;
     }
 
 
