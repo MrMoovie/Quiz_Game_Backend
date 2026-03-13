@@ -158,6 +158,13 @@ public class Persist {
                 .setParameter("token", token)
                 .uniqueResult();
     }
+    public StudentEntity getStudentByToken(String token) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM StudentEntity " +
+                        "WHERE token = :token", StudentEntity.class)
+                .setParameter("token", token)
+                .uniqueResult();
+    }
 
 
     public List<StudentEntity> getAllStudentsByRaceID(int raceId) {
@@ -178,8 +185,25 @@ public class Persist {
                 .uniqueResult();
 
         return count != null && count > 0;
+    }
 
+    public boolean isStudentInRace(StudentEntity studentEntity, int raceId) {
+        Long count = this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT count(r) FROM RaceEntity r " +
+                        "WHERE r.id = :raceId " +
+                        "AND r.student.id = :studentId", Long.class)
+                .setParameter("raceId", raceId)
+                .setParameter("studentId", studentEntity.getId())
+                .uniqueResult();
 
+        return count != null && count > 0;
+    }
+
+    public RaceEntity getRaceByRaceId(int raceId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM RaceEntity r WHERE r.id = :raceId", RaceEntity.class)
+                .setParameter("raceId", raceId)
+                .uniqueResult();
     }
     public ProffesionalEntity getProfessionalByToken(String token) {
         return this.sessionFactory.getCurrentSession()
