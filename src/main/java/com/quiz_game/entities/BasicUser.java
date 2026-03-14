@@ -6,6 +6,7 @@ public class BasicUser extends BaseEntity{
     private String token;
     private String fullName;
     private String contactInfo;
+    private int userType;
 
     public String getUsername() {
         return username;
@@ -46,4 +47,7 @@ public class BasicUser extends BaseEntity{
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+
+    public int getUserType() { return userType; }
+    public void setUserType(int userType) { this.userType = userType; }
 }
