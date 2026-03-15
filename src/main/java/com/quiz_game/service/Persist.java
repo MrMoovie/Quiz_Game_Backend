@@ -171,21 +171,6 @@ public class Persist {
                 .setParameter("token", token)
                 .uniqueResult();
     }
-    public TeacherEntity getTeacherByToken(String token) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM TeacherEntity " +
-                        "WHERE token = :token", TeacherEntity.class)
-                .setParameter("token", token)
-                .uniqueResult();
-    }
-    public StudentEntity getStudentByToken(String token) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM StudentEntity " +
-                        "WHERE token = :token", StudentEntity.class)
-                .setParameter("token", token)
-                .uniqueResult();
-    }
-
 
     public List<StudentEntity> getAllStudentsByRaceID(int raceId) {
         return this.sessionFactory.getCurrentSession()
@@ -233,6 +218,29 @@ public class Persist {
                 .uniqueResult();
     }
 
+    public TeacherEntity getTeacherByToken(String token) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM TeacherEntity " +
+                        "WHERE token = :token", TeacherEntity.class)
+                .setParameter("token", token)
+                .uniqueResult();
+    }
+
+    public StudentEntity getStudentByToken(String token) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM StudentEntity " +
+                        "WHERE token = :token", StudentEntity.class)
+                .setParameter("token", token)
+                .uniqueResult();
+    }
+
+    public SessionEntity getSessionByEntryCode(String entryCode) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM SessionEntity " +
+                        "WHERE entryCode = :entryCode", SessionEntity.class)
+                .setParameter("entryCode", entryCode)
+                .uniqueResult();
+    }
 
     public ProffesionalEntity getProffesionalByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
