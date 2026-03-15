@@ -23,92 +23,93 @@ public class GeneralController {
     public void init() {
     }
 
-
-    @RequestMapping ("/login")
-    public BasicResponse getUser (String username, String password, int selectedType) {
-        try {
-            if (username != null && password != null) {
-                if (selectedType == USER_TYPE_CLIENT) {
-                    ClientEntity clientEntity = persist.getUserByUsernameAndPassword(username, password);
-                    if (clientEntity != null) {
-                        String token = GeneralUtils.hashMd5(username, password);
-                        clientEntity.setToken(token);
-                        persist.save(clientEntity);
-                        return new LoginResponse(true, null, 1, token, clientEntity.getId(), selectedType);
-                    } else {
-                        return new BasicResponse(false,  ERROR_WRONG_CREDENTIALS);
-                    }
-                } else {
-                    ProffesionalEntity proffesionalEntity = persist.getProffesionalByUsernameAndPassword(username, password);
-                    if (proffesionalEntity != null) {
-                        String token = GeneralUtils.hashMd5(username, password);
-                        proffesionalEntity.setToken(token);
-                        persist.save(proffesionalEntity);
-                        return new LoginResponse(true, null, 1, token, proffesionalEntity.getId(), selectedType);
-                    } else {
-                        return new BasicResponse(false,  ERROR_WRONG_CREDENTIALS);
-                    }
-
-                }
-            } else {
-                return new BasicResponse(false, ERROR_MISSING_USERNAME_OR_PASSWORD);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-
-    }
-    @RequestMapping("/signup")
-    public BasicResponse addUser(int selectedType,String username,String password,String fullName,String address,String areas,int plan,String contactInfo) {
-        try {
-            if (username != null  && password != null && fullName != null && selectedType != 0 && contactInfo != null) {
-                BasicUser userEntity = persist.getUserByUsername(username);
-                if (userEntity != null) {
-                    return new BasicResponse(false,ERROR_USERNAME_ALREADY_EXISTS);
-                }else {
-                    if (selectedType == USER_TYPE_CLIENT) {
-                        if (address != null){
-                            ClientEntity clientEntity = new ClientEntity();
-                            clientEntity.setUsername(username);
-                            clientEntity.setPassword(password);
-                            clientEntity.setAddress(address);
-                            clientEntity.setFullName(fullName);
-                            clientEntity.setContactInfo(contactInfo);
-                            String token = GeneralUtils.hashMd5(username, password);
-                            clientEntity.setToken(token);
-                            persist.save(clientEntity);
-                            return new LoginResponse(true, null, 1, token, clientEntity.getId(), selectedType);
-                        }else {
-                            return new BasicResponse(false, ERROR_MISSING_VALUES);
-                        }
-                    }else {
-                        if (areas != null && plan > 0) {
-                            ProffesionalEntity proffesionalEntity = new ProffesionalEntity();
-                            proffesionalEntity.setFullName(fullName);
-                            proffesionalEntity.setUsername(username);
-                            proffesionalEntity.setPassword(password);
-                            proffesionalEntity.setAreas(areas);
-                            proffesionalEntity.setPlan(plan);
-                            proffesionalEntity.setContactInfo(contactInfo);
-                            String token = GeneralUtils.hashMd5(username, password);
-                            proffesionalEntity.setToken(token);
-                            persist.save(proffesionalEntity);
-                            return new LoginResponse(true, null, 1, token, proffesionalEntity.getId(), selectedType);
-                        }else {
-                            return new BasicResponse(false, ERROR_MISSING_VALUES);
-                        }
-                    }
-                }
-            }else {
-                return new BasicResponse(false, ERROR_MISSING_VALUES);
-            }
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
+    // >> NOT RELEVANT TO OUR PROJECT << //
+//    @RequestMapping ("/login")
+//    public BasicResponse getUser (String username, String password, int selectedType) {
+//        try {
+//            if (username != null && password != null) {
+//                if (selectedType == USER_TYPE_CLIENT) {
+//                    ClientEntity clientEntity = persist.getUserByUsernameAndPassword(username, password);
+//                    if (clientEntity != null) {
+//                        String token = GeneralUtils.hashMd5(username, password);
+//                        clientEntity.setToken(token);
+//                        persist.save(clientEntity);
+//                        return new LoginResponse(true, null, 1, token, clientEntity.getId(), selectedType);
+//                    } else {
+//                        return new BasicResponse(false,  ERROR_WRONG_CREDENTIALS);
+//                    }
+//                } else {
+//                    ProffesionalEntity proffesionalEntity = persist.getProffesionalByUsernameAndPassword(username, password);
+//                    if (proffesionalEntity != null) {
+//                        String token = GeneralUtils.hashMd5(username, password);
+//                        proffesionalEntity.setToken(token);
+//                        persist.save(proffesionalEntity);
+//                        return new LoginResponse(true, null, 1, token, proffesionalEntity.getId(), selectedType);
+//                    } else {
+//                        return new BasicResponse(false,  ERROR_WRONG_CREDENTIALS);
+//                    }
+//
+//                }
+//            } else {
+//                return new BasicResponse(false, ERROR_MISSING_USERNAME_OR_PASSWORD);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//
+//    }
+    // >> NOT RELEVANT TO OUR PROJECT << //
+//    @RequestMapping("/signup")
+//    public BasicResponse addUser(int selectedType,String username,String password,String fullName,String address,String areas,int plan,String contactInfo) {
+//        try {
+//            if (username != null  && password != null && fullName != null && selectedType != 0 && contactInfo != null) {
+//                BasicUser userEntity = persist.getUserByUsername(username);
+//                if (userEntity != null) {
+//                    return new BasicResponse(false,ERROR_USERNAME_ALREADY_EXISTS);
+//                }else {
+//                    if (selectedType == USER_TYPE_CLIENT) {
+//                        if (address != null){
+//                            ClientEntity clientEntity = new ClientEntity();
+//                            clientEntity.setUsername(username);
+//                            clientEntity.setPassword(password);
+//                            clientEntity.setAddress(address);
+//                            clientEntity.setFullName(fullName);
+//                            clientEntity.setContactInfo(contactInfo);
+//                            String token = GeneralUtils.hashMd5(username, password);
+//                            clientEntity.setToken(token);
+//                            persist.save(clientEntity);
+//                            return new LoginResponse(true, null, 1, token, clientEntity.getId(), selectedType);
+//                        }else {
+//                            return new BasicResponse(false, ERROR_MISSING_VALUES);
+//                        }
+//                    }else {
+//                        if (areas != null && plan > 0) {
+//                            ProffesionalEntity proffesionalEntity = new ProffesionalEntity();
+//                            proffesionalEntity.setFullName(fullName);
+//                            proffesionalEntity.setUsername(username);
+//                            proffesionalEntity.setPassword(password);
+//                            proffesionalEntity.setAreas(areas);
+//                            proffesionalEntity.setPlan(plan);
+//                            proffesionalEntity.setContactInfo(contactInfo);
+//                            String token = GeneralUtils.hashMd5(username, password);
+//                            proffesionalEntity.setToken(token);
+//                            persist.save(proffesionalEntity);
+//                            return new LoginResponse(true, null, 1, token, proffesionalEntity.getId(), selectedType);
+//                        }else {
+//                            return new BasicResponse(false, ERROR_MISSING_VALUES);
+//                        }
+//                    }
+//                }
+//            }else {
+//                return new BasicResponse(false, ERROR_MISSING_VALUES);
+//            }
+//
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     
     @RequestMapping("/get-user-posts")

@@ -51,22 +51,22 @@ public class PreGameController {
         }
     }
 
-    @RequestMapping("/join-session")
-    public JoinSessionResponse joinSession(String token, String entryCode) {
-        StudentEntity student = persist.getStudentByToken(token);
-        if (student != null) {
-            if (entryCode != null && !entryCode.trim().isEmpty()) {
-                SessionEntity session = persist.getSessionByEntryCode(entryCode.trim());
-                if (session != null && session.isOpen()) {
-                    return new JoinSessionResponse(true, null, session.getId());
-                } else {
-                    return new JoinSessionResponse(false, ERROR_MISSING_VALUES);
-                }
-            } else {
-                return new JoinSessionResponse(false, ERROR_MISSING_VALUES);
-            }
-        } else {
-            return new JoinSessionResponse(false, ERROR_WRONG_CREDENTIALS);
-        }
-    }
+//    @RequestMapping("/join-session")
+//    public JoinSessionResponse joinSession(String token, String entryCode) {
+//        StudentEntity student = persist.getStudentByToken(token);
+//        if (student != null) {
+//            if (entryCode != null && !entryCode.trim().isEmpty()) {
+//                SessionEntity session = persist.getSessionByEntryCode(entryCode.trim());
+//                if (session != null && session.isOpen()) {
+//                    return new JoinSessionResponse(true, null, session.getId());
+//                } else {
+//                    return new JoinSessionResponse(false, ERROR_MISSING_VALUES);
+//                }
+//            } else {
+//                return new JoinSessionResponse(false, ERROR_MISSING_VALUES);
+//            }
+//        } else {
+//            return new JoinSessionResponse(false, ERROR_WRONG_CREDENTIALS);
+//        }
+//    }
 }

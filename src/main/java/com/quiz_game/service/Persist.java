@@ -56,58 +56,78 @@ public class Persist {
                 .createQuery("FROM " + clazz.getSimpleName()).list();
     }
 
+//  >> NOT RELEVANT TO OUR PROJECT << //
+//    public BasicUser getUserByUsername(String username) {
+//        BasicUser user = getClientByUsername(username);
+//        if (user == null) {
+//            user = getProffesionalByUsername(username);
+//        }
+//        return user;
+//    }
+//    public ClientEntity getClientByUsername(String username) {
+//        return this.sessionFactory.getCurrentSession()
+//                .createQuery("FROM ClientEntity " + " WHERE username = :username ", ClientEntity.class)
+//                .setParameter("username", username)
+//                .uniqueResult();
+//    }
+//    public ProffesionalEntity getProffesionalByUsername(String username) {
+//        return this.sessionFactory.getCurrentSession()
+//                .createQuery("FROM ProffesionalEntity " + " WHERE username = :username ", ProffesionalEntity.class)
+//                .setParameter("username", username)
+//                .uniqueResult();
+//    }
+
+
+    //sign_in and sign_up
+    public StudentEntity getStudentByUsername(String username) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM StudentEntity " + " WHERE username = :username ", StudentEntity.class)
+                .setParameter("username", username)
+                .uniqueResult();
+    }
+
+    public TeacherEntity getTeacherByUsername(String username) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM TeacherEntity " + " WHERE username = :username ", TeacherEntity.class)
+                .setParameter("username", username)
+                .uniqueResult();
+    }
 
     public BasicUser getUserByUsername(String username) {
-        BasicUser user = getClientByUsername(username);
+        BasicUser user = getStudentByUsername(username);
         if (user == null) {
-            user = getProffesionalByUsername(username);
+            user = getTeacherByUsername(username);
         }
         return user;
     }
-    public ClientEntity getClientByUsername(String username) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM ClientEntity " + " WHERE username = :username ", ClientEntity.class)
-                .setParameter("username", username)
-                .uniqueResult();
-    }
-    public ProffesionalEntity getProffesionalByUsername(String username) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM ProffesionalEntity " + " WHERE username = :username ", ProffesionalEntity.class)
-                .setParameter("username", username)
-                .uniqueResult();
-    }
 
 
 
-    public ClientEntity getStudentByUsernameAndPassword(String username, String password) {
+    public StudentEntity getStudentByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM StudentEntity  " +
                         "WHERE username = :username " +
-                        "AND password = :password", ClientEntity.class)
+                        "AND password = :password", StudentEntity.class)
                 .setParameter("username", username)
                 .setParameter("password", password)
                 .uniqueResult();
     }
-
-
-    public ClientEntity getTeacherByUsernameAndPassword(String username, String password) {
+    public TeacherEntity getTeacherByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM TeacherEntity  " +
                         "WHERE username = :username " +
-                        "AND password = :password", ClientEntity.class)
+                        "AND password = :password", TeacherEntity.class)
                 .setParameter("username", username)
                 .setParameter("password", password)
                 .uniqueResult();
     }
 
-    public ClientEntity getUserByUsernameAndPassword(String username, String password) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM ClientEntity  " +
-                        "WHERE username = :username " +
-                        "AND password = :password", ClientEntity.class)
-                .setParameter("username", username)
-                .setParameter("password", password)
-                .uniqueResult();
+    public BasicUser getUserByUsernameAndPassword(String username, String password) {
+        BasicUser user = getStudentByUsernameAndPassword(username, password);
+        if (user == null) {
+            user = getTeacherByUsernameAndPassword(username, password);
+        }
+        return user;
     }
 
     public List<PostEntity> getPostsByClientId(int clientId) {
