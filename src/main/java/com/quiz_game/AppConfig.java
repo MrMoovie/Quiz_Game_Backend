@@ -110,24 +110,4 @@ public class AppConfig {
         };
     }
 
-    @Bean
-    public CommandLineRunner dataLoader(DataSource dataSource) {
-        return args -> {
-            try {
-                // Point to the data.sql file in your src/main/resources folder
-                Resource resource = new ClassPathResource("data.sql");
-
-                // Spring's built-in tool to run SQL scripts
-                ResourceDatabasePopulator populator = new ResourceDatabasePopulator(resource);
-
-                // Execute the script using your custom configured DataSource
-                populator.execute(dataSource);
-
-                System.out.println("Successfully populated default game data from data.sql");
-            } catch (Exception e) {
-                System.out.println("Could not run data.sql (maybe the file is missing?): " + e.getMessage());
-            }
-        };
-    }
-
 }

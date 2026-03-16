@@ -14,10 +14,17 @@ import java.util.List;
 import static com.quiz_game.utils.Constants.USER_TYPE_CLIENT;
 import static com.quiz_game.utils.Errors.*;
 
+import javax.sql.DataSource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+
 @RestController
 public class GeneralController {
     @Autowired
     private Persist persist;
+    @Autowired
+    private DataSource dataSource;
 
     @PostConstruct
     public void init() {
@@ -110,6 +117,23 @@ public class GeneralController {
 //        }
 //        return null;
 //    }
+
+    @RequestMapping("/test")
+    public BasicResponse loadTestData() {
+        try {
+            // Make sure your file in src/main/resources is renamed to test-data.sql
+            Resource resource = new ClassPathResource("test-data.sql");
+            ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator(resource);
+
+            // Execute the script against your database
+            databasePopulator.execute(dataSource);
+
+            return new BasicResponse(true, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new BasicResponse(false, 1);
+        }
+    }
 
     
     @RequestMapping("/get-user-posts")
