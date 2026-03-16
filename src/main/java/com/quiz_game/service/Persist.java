@@ -34,7 +34,7 @@ public class Persist {
         }
     }
 
-    public <T> void remove(Object o){
+    public <T> void remove(Object o) {
         sessionFactory.getCurrentSession().remove(o);
     }
 
@@ -50,8 +50,7 @@ public class Persist {
         return this.getQuerySession().get(clazz, oid);
     }
 
-    public <T> List<T> loadList(Class<T> clazz)
-    {
+    public <T> List<T> loadList(Class<T> clazz) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM " + clazz.getSimpleName()).list();
     }
@@ -100,7 +99,6 @@ public class Persist {
         }
         return user;
     }
-
 
 
     public StudentEntity getStudentByUsernameAndPassword(String username, String password) {
@@ -171,7 +169,6 @@ public class Persist {
                 .setParameter("token", token)
                 .uniqueResult();
     }
-
     public List<StudentEntity> getAllStudentsByRaceID(int raceId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("SELECT r.student FROM TrackEntity r " +
@@ -277,7 +274,7 @@ public class Persist {
                 .list();
     }
 
-    public List<MessageEntity> getConversation (int bidId) {
+    public List<MessageEntity> getConversation(int bidId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery(
                         "FROM MessageEntity msg " +
@@ -288,9 +285,6 @@ public class Persist {
                 .setMaxResults(10)
                 .list();
     }
-
-
-
 
 
 }

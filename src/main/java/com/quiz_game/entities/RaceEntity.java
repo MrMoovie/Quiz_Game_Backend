@@ -1,9 +1,12 @@
 package com.quiz_game.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class RaceEntity extends BaseEntity{
+    @JsonIgnore // infinite loop
     private TeacherEntity teacher;
     private String entryCode;
     private boolean isOpen;           ///need to be deleted

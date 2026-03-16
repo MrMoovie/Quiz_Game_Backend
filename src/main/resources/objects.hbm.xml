@@ -118,11 +118,9 @@
         </id>
         <many-to-one name="student" class="com.quiz_game.entities.StudentEntity" column="student_id"/>
         <many-to-one name="race" class="com.quiz_game.entities.RaceEntity" column="race_id"/>
-        <property name="score" type="int" column="score"/>
-        <!--        </property>-->
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
+        <property name="score" type="int">
+            <column name="score" default="0"/>
+        </property>
         <property name="path" type="int">
             <column name="path" default="0"/>
         </property>
@@ -135,6 +133,10 @@
         <property name="position" type="int">
             <column name="position" default="0"/>
         </property>
+        <!--        </property>-->
+        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
+        <!--        <property name="deleted" type="boolean">-->
+        <!--            <column name="deleted" default="false"/>-->
     </class>
 
 

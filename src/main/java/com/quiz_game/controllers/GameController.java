@@ -23,17 +23,17 @@ public class GameController {
     public BasicResponse teacherAndRaceBadResponse(String teacherToken, int raceId) {
         TeacherEntity teacherEntity = persist.getTeacherByToken(teacherToken);
         if (teacherEntity == null) {
-            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED); //ERROR_WRONG_CREDENTIALS
         }
-        if (!persist.isTeacherHostingRace(teacherEntity, raceId)) {
+        if (!persist.isTeacherHostingRace(teacherEntity, raceId)) { // Can do only getRaces, and check for null
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
-        return null; // true - teacher created race.
+        return null; // true - teacher created race. //???
     }
 
-    @RequestMapping("/get-all-students-in-race")
-    public BasicResponse getAllStudents(String teacherToken,int raceId) {
-        BasicResponse badResponse = teacherAndRaceBadResponse(teacherToken, raceId);
+    @RequestMapping("/get-all-students-in-race") //MAJOR SECURITY WARNING
+    public BasicResponse getAllStudents(String teacherToken,int raceId) { //should check for missing credentials
+        BasicResponse badResponse = teacherAndRaceBadResponse(teacherToken, raceId); // it's a controller's class there shouldn't be any secondary functions
         if (badResponse != null) {
             return badResponse;
         }
