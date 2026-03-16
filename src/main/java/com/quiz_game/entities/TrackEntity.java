@@ -14,6 +14,9 @@ public class TrackEntity extends BaseEntity{
     private int powerUp;
     private int position;
 
+    public TrackEntity() {
+    }
+
     public RaceEntity getRace() {
         return race;
     }

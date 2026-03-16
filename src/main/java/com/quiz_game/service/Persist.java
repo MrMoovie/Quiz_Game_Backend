@@ -231,10 +231,10 @@ public class Persist {
                 .uniqueResult();
     }
 
-    public SessionEntity getSessionByEntryCode(String entryCode) {
+    public RaceEntity getRaceByEntryCode(String entryCode) {
         return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM SessionEntity " +
-                        "WHERE entryCode = :entryCode", SessionEntity.class)
+                .createQuery("FROM RaceEntity " +
+                        "WHERE entryCode = :entryCode", RaceEntity.class)
                 .setParameter("entryCode", entryCode)
                 .uniqueResult();
     }

@@ -1,11 +1,12 @@
 package com.quiz_game.controllers;
 
-import com.quiz_game.entities.ClassroomEntity;
-import com.quiz_game.entities.SessionEntity;
+import com.quiz_game.entities.RaceEntity;
 import com.quiz_game.entities.StudentEntity;
 import com.quiz_game.entities.TeacherEntity;
-import com.quiz_game.responses.CreateSessionResponse;
-import com.quiz_game.responses.JoinSessionResponse;
+import com.quiz_game.entities.TrackEntity;
+import com.quiz_game.responses.BasicResponse;
+import com.quiz_game.responses.CreateRaceResponse;
+import com.quiz_game.responses.JoinRaceResponse;
 import com.quiz_game.service.Persist;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,48 +26,45 @@ public class PreGameController {
     public void init() {
     }
 
-    @RequestMapping("/create-session")
-    public CreateSessionResponse createSession(String token, Integer classroomId) {
+
+    @RequestMapping("/create-race")
+    public BasicResponse createRace(String token) {
         TeacherEntity teacher = persist.getTeacherByToken(token);
         if (teacher != null) {
-            if (classroomId != null && classroomId > 0) {
-                ClassroomEntity classroom = persist.loadObject(ClassroomEntity.class, classroomId);
-                if (classroom != null) {
-                    String entryCode = GeneralUtils.generateOtp();
-                    SessionEntity session = new SessionEntity();
-                    session.setTeacher(teacher);
-                    session.setEntryCode(entryCode);
-                    session.setOpen(true);
-                    session.setStatus(0);
-                    persist.save(session);
-                    return new CreateSessionResponse(true, null, session.getId(), entryCode);
-                } else {
-                    return new CreateSessionResponse(false, ERROR_MISSING_VALUES);
-                }
-            } else {
-                return new CreateSessionResponse(false, ERROR_MISSING_VALUES);
-            }
+            String entryCode = GeneralUtils.generateOtp();
+            RaceEntity race = new RaceEntity();
+            race.setTeacher(teacher);
+            race.setEntryCode(entryCode);
+            race.setOpen(true);
+            race.setStatus(0);
+            persist.save(race);
+            return new CreateRaceResponse(true, null, race.getId(), entryCode);
         } else {
-            return new CreateSessionResponse(false, ERROR_WRONG_CREDENTIALS);
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
     }
 
-//    @RequestMapping("/join-session")
-//    public JoinSessionResponse joinSession(String token, String entryCode) {
-//        StudentEntity student = persist.getStudentByToken(token);
-//        if (student != null) {
-//            if (entryCode != null && !entryCode.trim().isEmpty()) {
-//                SessionEntity session = persist.getSessionByEntryCode(entryCode.trim());
-//                if (session != null && session.isOpen()) {
-//                    return new JoinSessionResponse(true, null, session.getId());
-//                } else {
-//                    return new JoinSessionResponse(false, ERROR_MISSING_VALUES);
-//                }
-//            } else {
-//                return new JoinSessionResponse(false, ERROR_MISSING_VALUES);
-//            }
-//        } else {
-//            return new JoinSessionResponse(false, ERROR_WRONG_CREDENTIALS);
-//        }
-//    }
+
+
+    @RequestMapping("/join-race")
+    public BasicResponse joinRace(String token, String entryCode) {
+        StudentEntity student = persist.getStudentByToken(token);
+        if (student != null) {
+            if (entryCode != null && !entryCode.trim().isEmpty()) {
+                RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
+                if (race != null && race.isOpen()) {
+                    TrackEntity track = new TrackEntity();
+                    track.setRace(race);
+                    track.setStudent(student);
+                    return new JoinRaceResponse(true, null, race.getId());
+                } else {
+                    return new BasicResponse(false, ERROR_MISSING_VALUES);
+                }
+            } else {
+                return new BasicResponse(false, ERROR_MISSING_VALUES);
+            }
+        } else {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+    }
 }
