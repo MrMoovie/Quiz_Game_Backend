@@ -7,6 +7,7 @@ import com.quiz_game.entities.TrackEntity;
 import com.quiz_game.responses.BasicResponse;
 import com.quiz_game.responses.CreateRaceResponse;
 import com.quiz_game.responses.JoinRaceResponse;
+import com.quiz_game.responses.RacesResponse;
 import com.quiz_game.service.Persist;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,4 +68,19 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
     }
+
+
+    //מקבל טוקן של התלמיד כדי לבדוק שהוא תלמיד ומחזיר את כל המירוצים שקיימים
+    @RequestMapping("/get-all-races")
+    public BasicResponse getAllRaces(String token) {
+        StudentEntity student = persist.getStudentByToken(token);
+        if (student != null) {
+            return new RacesResponse(true, null, persist.getAllRaces());
+        } else {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+    }
+
+
 }
+

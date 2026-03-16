@@ -239,6 +239,14 @@ public class Persist {
                 .uniqueResult();
     }
 
+    public List<RaceEntity> getAllRaces() {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM RaceEntity", RaceEntity.class)
+                .list();
+    }
+    
+    
+
     public ProffesionalEntity getProffesionalByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM ProffesionalEntity " +
