@@ -26,7 +26,7 @@ public class SseManager {
 
     @RequestMapping("/subscribe")
     public SseEmitter subscribe (String token) {
-        SseEmitter sseEmitter = new SseEmitter(10 * 60 * 1000L);
+        SseEmitter sseEmitter = new SseEmitter(0L);
         sseEmitter.onCompletion(() -> {
             this.subscribers.get(token).remove(sseEmitter);
         });
@@ -85,4 +85,19 @@ public class SseManager {
             }
         }
     }
+
+    public void gameStarted(List<String> tokens, int raceId){
+        for(String token: tokens){
+            List<SseEmitter> sessions = subscribers.get(token);
+            if(sessions!=null && !sessions.isEmpty()){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("event","GAME_STARTED");
+                jsonObject.put("raceId", raceId);
+                sendEvent(sessions, "game-started", jsonObject.toString());
+            }
+        }
+    }
+
+
+
 }

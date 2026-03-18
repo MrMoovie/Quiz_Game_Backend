@@ -294,5 +294,12 @@ public class Persist {
                 .list();
     }
 
+    public RaceEntity getRaceByTeacherId(int teacherId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM RaceEntity " + " WHERE teacher_id = :teacherId ", RaceEntity.class)
+                .setParameter("teacherId", teacherId)
+                .uniqueResult();
+    }
+
 
 }

@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 
+import java.util.List;
+
+import static com.quiz_game.utils.Constants.*;
 import static com.quiz_game.utils.Errors.*;
 
 @RestController
@@ -42,6 +45,7 @@ public class PreGameController {
             race.setOpen(true);
             race.setStatus(0);
             persist.save(race);
+            //HAS TO SUBSCRIBE
             return new CreateRaceResponse(true, null, race.getId(), entryCode);
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
@@ -63,6 +67,7 @@ public class PreGameController {
                     persist.save(track);
 
                     sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
+                    //HAS TO SUBSCRIBE
 
                     return new JoinRaceResponse(true, null, race.getId());
                 } else {
@@ -88,10 +93,22 @@ public class PreGameController {
     }
 
     @RequestMapping("/start-race")
-    public BasicResponse startRace(){
-
-
-        return null;
+    public BasicResponse startRace(String token){
+        TeacherEntity teacher = persist.getTeacherByToken(token);
+        if(teacher!=null){
+            RaceEntity race = persist.getRaceByTeacherId(teacher.getId());
+            if(race!=null){
+                race.setStatus(RACE_STATUS_STARTED);
+                persist.save(race);
+                List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
+                sseManager.gameStarted(studentTokens, race.getId());
+                return new BasicResponse(true, null);
+            }else{
+                return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
+            }
+        }else {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
     }
 
 
