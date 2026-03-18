@@ -9,6 +9,7 @@ import com.quiz_game.responses.CreateRaceResponse;
 import com.quiz_game.responses.JoinRaceResponse;
 import com.quiz_game.responses.RacesResponse;
 import com.quiz_game.service.Persist;
+import com.quiz_game.service.SseManager;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +24,12 @@ public class PreGameController {
     @Autowired
     private Persist persist;
 
+    @Autowired
+    private SseManager sseManager;
+
     @PostConstruct
     public void init() {
     }
-
 
     @RequestMapping("/create-race")
     public BasicResponse createRace(String token) {
@@ -57,6 +60,10 @@ public class PreGameController {
                     TrackEntity track = new TrackEntity();
                     track.setRace(race);
                     track.setStudent(student);
+                    persist.save(track);
+
+                    sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
+
                     return new JoinRaceResponse(true, null, race.getId());
                 } else {
                     return new BasicResponse(false, ERROR_MISSING_VALUES);
@@ -70,7 +77,6 @@ public class PreGameController {
     }
 
 
-    //מקבל טוקן של התלמיד כדי לבדוק שהוא תלמיד ומחזיר את כל המירוצים שקיימים
     @RequestMapping("/get-all-races")
     public BasicResponse getAllRaces(String token) {
         StudentEntity student = persist.getStudentByToken(token);
@@ -80,6 +86,15 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
     }
+
+    @RequestMapping("/start-race")
+    public BasicResponse startRace(){
+
+
+        return null;
+    }
+
+
 
 
 }
