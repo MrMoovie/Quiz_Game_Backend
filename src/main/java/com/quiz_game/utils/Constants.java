@@ -25,4 +25,12 @@ public class Constants {
     public static final int RACE_STATUS_LOBBY = 0;
     public static final int RACE_STATUS_STARTED = 1;
     public static final int RACE_STATUS_FINISHED = 2;
+
+    public static final String REGULAR_PATH_DIFFICULTY = "0";
+    public static final String DIRT_ROAD_PATH_DIFFICULTY = "1";
+    public static final String HIGHWAY_PATH_DIFFICULTY = "2";
+
+
+
+
 }

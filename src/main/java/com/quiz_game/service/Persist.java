@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Random;
 
 
 @Transactional
@@ -177,6 +178,25 @@ public class Persist {
                 .getResultList();
     }
 
+    public String getRandomObjectName() {
+        return (String) this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT o.name FROM ObjectEntity o ORDER BY FUNCTION('RAND')")
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+    public String getRandomName() {
+        return (String) this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT n.name FROM NameEntity n ORDER BY FUNCTION('RAND')")
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+    public String getRandomActionName() {
+        return (String) this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT a.name FROM ActionEntity a ORDER BY FUNCTION('RAND')")
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+
     public boolean isTeacherHostingRace(TeacherEntity teacherEntity, int raceId) {
         Long count = this.sessionFactory.getCurrentSession()
                 .createQuery("SELECT count(r) FROM RaceEntity r " +
@@ -244,6 +264,14 @@ public class Persist {
                 .createQuery("FROM RaceEntity", RaceEntity.class)
                 .list();
     }
+
+    public boolean isAnyRaceOpenForTeacher(TeacherEntity teacher) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT 1 FROM RaceEntity r WHERE r.status = 1 AND r.teacher = :teacher", Integer.class)
+                .setParameter("teacher", teacher)
+                .setMaxResults(1)
+                .uniqueResult() != null;
+    }
     
     
 
@@ -300,6 +328,8 @@ public class Persist {
                 .setParameter("teacherId", teacherId)
                 .uniqueResult();
     }
+
+
 
 
 }

@@ -53,7 +53,6 @@ public class PreGameController {
     }
 
 
-
     @RequestMapping("/join-race")
     public BasicResponse joinRace(String token, String entryCode) {
         StudentEntity student = persist.getStudentByToken(token);
@@ -93,26 +92,30 @@ public class PreGameController {
     }
 
     @RequestMapping("/start-race")
-    public BasicResponse startRace(String token){
+    public BasicResponse startRace(String token, int raceId) {
         TeacherEntity teacher = persist.getTeacherByToken(token);
-        if(teacher!=null){
-            RaceEntity race = persist.getRaceByTeacherId(teacher.getId());
-            if(race!=null){
-                race.setStatus(RACE_STATUS_STARTED);
-                persist.save(race);
-                List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
-                sseManager.gameStarted(studentTokens, race.getId());
-                return new BasicResponse(true, null);
-            }else{
+        if (teacher != null) {
+            RaceEntity race = persist.getRaceByRaceId(raceId);
+            if (persist.isTeacherHostingRace(teacher, raceId)) {
+                if (race.getStatus() == RACE_STATUS_LOBBY) {
+                    if (!persist.isAnyRaceOpenForTeacher(teacher)) {
+                        race.setStatus(RACE_STATUS_STARTED);
+                        persist.save(race);
+                        List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
+                        sseManager.gameStarted(studentTokens, race.getId());
+                        return new BasicResponse(true, null);
+                    } else {
+                        return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
+                    }
+                } else {
+                    return new BasicResponse(false, ERROR_RACE_CANT_BE_STARTED);
+                }
+            } else {
                 return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
             }
-        }else {
+        } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
     }
-
-
-
-
 }
 
