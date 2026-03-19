@@ -37,12 +37,13 @@ public class GameController {
     }
 
     @RequestMapping("/getNewQuestion")
-    public BasicResponse getNewQuestion(String studentToken, int raceId, int pathChoice) {
+    public BasicResponse getNewQuestion(String studentToken, int trackId, int pathChoice) {
         StudentEntity studentEntity = persist.getStudentByToken(studentToken);
         if (studentEntity == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
-        if (!persist.isStudentInRace(studentEntity, raceId)) {
+
+        if (!persist.isStudentInRace(studentEntity, trackId)) {
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_STUDENT);
         }
         if (pathChoice < 0 || pathChoice > 2) { // pathChoice = 0 (normal)  || 1 (dirt road) || 2 (highway)
@@ -67,7 +68,7 @@ public class GameController {
     @RequestMapping("/submit-answer")
     //צריך לבדוק לגבי המשתנים
     //צריך פונקציה לחישוב את התשובה מהתבנית כדי לדעת אם היא נכונה
-    public BasicResponse submitAnswer(String studentToken, int raceId, String answer, int questionId) {
+    public BasicResponse submitAnswer(String studentToken, int trackId, String answer, int questionId) {
         return new BasicResponse(true, null);
     }
 

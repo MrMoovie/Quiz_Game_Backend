@@ -180,7 +180,7 @@ public class Persist {
 
     public String getRandomObjectName() {
         return (String) this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT o.name FROM ObjectEntity o ORDER BY FUNCTION('RAND')")
+                .createQuery("SELECT o.objectName FROM ObjectEntity o ORDER BY FUNCTION('RAND')")
                 .setMaxResults(1)
                 .uniqueResult();
     }
@@ -192,7 +192,7 @@ public class Persist {
     }
     public String getRandomActionName() {
         return (String) this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT a.name FROM ActionEntity a ORDER BY FUNCTION('RAND')")
+                .createQuery("SELECT a.actionName FROM ActionEntity a ORDER BY FUNCTION('RAND')")
                 .setMaxResults(1)
                 .uniqueResult();
     }
@@ -209,12 +209,12 @@ public class Persist {
         return count != null && count > 0;
     }
 
-    public boolean isStudentInRace(StudentEntity studentEntity, int raceId) {
+    public boolean isStudentInRace(StudentEntity studentEntity, int trackId) {
         Long count = this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT count(r) FROM RaceEntity r " +
-                        "WHERE r.id = :raceId " +
+                .createQuery("SELECT count(r) FROM TrackEntity r " +
+                        "WHERE r.id = :trackId " +
                         "AND r.student.id = :studentId", Long.class)
-                .setParameter("raceId", raceId)
+                .setParameter("trackId", trackId)
                 .setParameter("studentId", studentEntity.getId())
                 .uniqueResult();
 
