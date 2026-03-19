@@ -286,9 +286,9 @@ public class Persist {
     }
 
     public BasicUser getUserByToken(String token) {
-        BasicUser user = getClientByToken(token);
+        BasicUser user = getStudentByToken(token);
         if (user == null) {
-            user = getProfessionalByToken(token);
+            user = getTeacherByToken(token);
         }
         return user;
     }

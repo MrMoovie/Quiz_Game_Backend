@@ -42,7 +42,6 @@ public class PreGameController {
             RaceEntity race = new RaceEntity();
             race.setTeacher(teacher);
             race.setEntryCode(entryCode);
-            race.setOpen(true);
             race.setStatus(0);
             persist.save(race);
             //HAS TO SUBSCRIBE
@@ -59,7 +58,7 @@ public class PreGameController {
         if (student != null) {
             if (entryCode != null && !entryCode.trim().isEmpty()) {
                 RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
-                if (race != null && race.isOpen()) {
+                if (race != null && race.getStatus() == RACE_STATUS_LOBBY) {
                     TrackEntity track = new TrackEntity();
                     track.setRace(race);
                     track.setStudent(student);

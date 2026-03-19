@@ -9,7 +9,6 @@ public class RaceEntity extends BaseEntity{
     @JsonIgnore // infinite loop
     private TeacherEntity teacher;
     private String entryCode;
-    private boolean isOpen;           ///need to be deleted
     private int maxCapacity;
     private int status;
     private List<TrackEntity> tracks = new ArrayList<>();
@@ -29,14 +28,6 @@ public class RaceEntity extends BaseEntity{
 
     public void setEntryCode(String entryCode) {
         this.entryCode = entryCode;
-    }
-
-    public boolean isOpen() {
-        return isOpen;
-    }
-
-    public void setOpen(boolean open) {
-        isOpen = open;
     }
 
     public int getMaxCapacity() {
