@@ -1,7 +1,11 @@
 package com.quiz_game.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class TrackEntity extends BaseEntity{
+    @JsonIgnore // infinite loop
     private RaceEntity race;
+    @JsonIgnore // infinite loop
     private StudentEntity student;
     private int score;
     private int path;
@@ -9,6 +13,9 @@ public class TrackEntity extends BaseEntity{
     private int pathChance;
     private int powerUp;
     private int position;
+
+    public TrackEntity() {
+    }
 
     public RaceEntity getRace() {
         return race;

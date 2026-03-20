@@ -59,23 +59,23 @@ public class LiveChatController {
 
 
 
-    @RequestMapping ("/subscribe")
-    public SseEmitter subscribe (String token) {
-        SseEmitter sseEmitter = new SseEmitter(10 * 60 * 1000L);
-        sseEmitter.onCompletion(() -> {
-            this.subscribers.get(token).remove(sseEmitter);
-        });
-        sseEmitter.onError((event) -> {
-            this.subscribers.get(token).remove(sseEmitter);
-        });
-        List<SseEmitter> currentEmitters = this.subscribers.get(token);
-        if (currentEmitters == null) {
-            currentEmitters = new CopyOnWriteArrayList<>();
-            this.subscribers.put(token, currentEmitters);
-        }
-        currentEmitters.add(sseEmitter);
-        return sseEmitter;
-    }
+//    @RequestMapping ("/subscribe")
+//    public SseEmitter subscribe (String token) {
+//        SseEmitter sseEmitter = new SseEmitter(10 * 60 * 1000L);
+//        sseEmitter.onCompletion(() -> {
+//            this.subscribers.get(token).remove(sseEmitter);
+//        });
+//        sseEmitter.onError((event) -> {
+//            this.subscribers.get(token).remove(sseEmitter);
+//        });
+//        List<SseEmitter> currentEmitters = this.subscribers.get(token);
+//        if (currentEmitters == null) {
+//            currentEmitters = new CopyOnWriteArrayList<>();
+//            this.subscribers.put(token, currentEmitters);
+//        }
+//        currentEmitters.add(sseEmitter);
+//        return sseEmitter;
+//    }
 
     @RequestMapping("/send-message")
     public BasicResponse sendMessage(String token, String newMessage, int bidId) {

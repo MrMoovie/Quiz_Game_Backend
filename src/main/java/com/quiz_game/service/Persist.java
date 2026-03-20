@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Random;
+
+import static com.quiz_game.utils.Constants.RACE_STATUS_FINISHED;
 
 
 @Transactional
@@ -34,7 +37,7 @@ public class Persist {
         }
     }
 
-    public <T> void remove(Object o){
+    public <T> void remove(Object o) {
         sessionFactory.getCurrentSession().remove(o);
     }
 
@@ -50,8 +53,7 @@ public class Persist {
         return this.getQuerySession().get(clazz, oid);
     }
 
-    public <T> List<T> loadList(Class<T> clazz)
-    {
+    public <T> List<T> loadList(Class<T> clazz) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM " + clazz.getSimpleName()).list();
     }
@@ -100,7 +102,6 @@ public class Persist {
         }
         return user;
     }
-
 
 
     public StudentEntity getStudentByUsernameAndPassword(String username, String password) {
@@ -171,13 +172,31 @@ public class Persist {
                 .setParameter("token", token)
                 .uniqueResult();
     }
-
     public List<StudentEntity> getAllStudentsByRaceID(int raceId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("SELECT r.student FROM TrackEntity r " +
                         "WHERE r.race.id = :raceId", StudentEntity.class)
                 .setParameter("raceId", raceId)
                 .getResultList();
+    }
+
+    public String getRandomObjectName() {
+        return (String) this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT o.objectName FROM ObjectEntity o ORDER BY FUNCTION('RAND')")
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+    public String getRandomName() {
+        return (String) this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT n.name FROM NameEntity n ORDER BY FUNCTION('RAND')")
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+    public String getRandomActionName() {
+        return (String) this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT a.actionName FROM ActionEntity a ORDER BY FUNCTION('RAND')")
+                .setMaxResults(1)
+                .uniqueResult();
     }
 
     public boolean isTeacherHostingRace(TeacherEntity teacherEntity, int raceId) {
@@ -192,12 +211,12 @@ public class Persist {
         return count != null && count > 0;
     }
 
-    public boolean isStudentInRace(StudentEntity studentEntity, int raceId) {
+    public boolean isStudentInRace(StudentEntity studentEntity, int trackId) {
         Long count = this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT count(r) FROM RaceEntity r " +
-                        "WHERE r.id = :raceId " +
+                .createQuery("SELECT count(r) FROM TrackEntity r " +
+                        "WHERE r.id = :trackId " +
                         "AND r.student.id = :studentId", Long.class)
-                .setParameter("raceId", raceId)
+                .setParameter("trackId", trackId)
                 .setParameter("studentId", studentEntity.getId())
                 .uniqueResult();
 
@@ -234,13 +253,39 @@ public class Persist {
                 .uniqueResult();
     }
 
-    public SessionEntity getSessionByEntryCode(String entryCode) {
+    public RaceEntity getRaceByEntryCode(String entryCode) {
         return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM SessionEntity " +
-                        "WHERE entryCode = :entryCode", SessionEntity.class)
+                .createQuery("FROM RaceEntity " +
+                        "WHERE entryCode = :entryCode", RaceEntity.class)
                 .setParameter("entryCode", entryCode)
                 .uniqueResult();
     }
+
+    public List<RaceEntity> getAllRaces() {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM RaceEntity", RaceEntity.class)
+                .list();
+    }
+
+    public boolean isAnyRaceOpenForTeacher(TeacherEntity teacher) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT 1 FROM RaceEntity r WHERE r.status = 1 AND r.teacher = :teacher", Integer.class)
+                .setParameter("teacher", teacher)
+                .setMaxResults(1)
+                .uniqueResult() != null;
+    }
+
+
+    public boolean isStudentInAnyNonFinishedRace(StudentEntity student) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT 1 FROM TrackEntity t WHERE t.student = :student AND t.race.status != :finishedStatus", Integer.class)
+                .setParameter("student", student)
+                .setParameter("finishedStatus", RACE_STATUS_FINISHED)
+                .setMaxResults(1)
+                .uniqueResult() != null;
+    }
+    
+    
 
     public ProffesionalEntity getProffesionalByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
@@ -253,9 +298,9 @@ public class Persist {
     }
 
     public BasicUser getUserByToken(String token) {
-        BasicUser user = getClientByToken(token);
+        BasicUser user = getStudentByToken(token);
         if (user == null) {
-            user = getProfessionalByToken(token);
+            user = getTeacherByToken(token);
         }
         return user;
     }
@@ -277,7 +322,7 @@ public class Persist {
                 .list();
     }
 
-    public List<MessageEntity> getConversation (int bidId) {
+    public List<MessageEntity> getConversation(int bidId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery(
                         "FROM MessageEntity msg " +
@@ -289,6 +334,12 @@ public class Persist {
                 .list();
     }
 
+    public RaceEntity getRaceByTeacherId(int teacherId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM RaceEntity " + " WHERE teacher_id = :teacherId ", RaceEntity.class)
+                .setParameter("teacherId", teacherId)
+                .uniqueResult();
+    }
 
 
 
