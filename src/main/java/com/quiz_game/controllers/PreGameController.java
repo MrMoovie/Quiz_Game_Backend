@@ -56,23 +56,26 @@ public class PreGameController {
     public BasicResponse joinRace(String token, String entryCode) {
         StudentEntity student = persist.getStudentByToken(token);
         if (student != null) {
-            if (entryCode != null && !entryCode.trim().isEmpty()) {
-                RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
-                if (race != null && race.getStatus() == RACE_STATUS_LOBBY) {
-                    TrackEntity track = new TrackEntity();
-                    track.setRace(race);
-                    track.setStudent(student);
-                    persist.save(track);
+            if (!persist.isStudentInAnyNonFinishedRace(student)) {
+                if (entryCode != null && !entryCode.trim().isEmpty()) {
+                    RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
+                    if (race != null && race.getStatus() == RACE_STATUS_LOBBY) {
+                        TrackEntity track = new TrackEntity();
+                        track.setRace(race);
+                        track.setStudent(student);
+                        persist.save(track);
 
-                    sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
-                    //HAS TO SUBSCRIBE
-
-                    return new JoinRaceResponse(true, null, race.getId());
+                        sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
+                        //HAS TO SUBSCRIBE
+                        return new JoinRaceResponse(true, null, race.getId());
+                    } else {
+                        return new BasicResponse(false, ERROR_MISSING_VALUES);
+                    }
                 } else {
                     return new BasicResponse(false, ERROR_MISSING_VALUES);
                 }
             } else {
-                return new BasicResponse(false, ERROR_MISSING_VALUES);
+                return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
             }
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);

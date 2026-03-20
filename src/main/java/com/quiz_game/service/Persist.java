@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Random;
 
+import static com.quiz_game.utils.Constants.RACE_STATUS_FINISHED;
+
 
 @Transactional
 @Component
@@ -269,6 +271,16 @@ public class Persist {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("SELECT 1 FROM RaceEntity r WHERE r.status = 1 AND r.teacher = :teacher", Integer.class)
                 .setParameter("teacher", teacher)
+                .setMaxResults(1)
+                .uniqueResult() != null;
+    }
+
+
+    public boolean isStudentInAnyNonFinishedRace(StudentEntity student) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT 1 FROM TrackEntity t WHERE t.student = :student AND t.race.status != :finishedStatus", Integer.class)
+                .setParameter("student", student)
+                .setParameter("finishedStatus", RACE_STATUS_FINISHED)
                 .setMaxResults(1)
                 .uniqueResult() != null;
     }
