@@ -56,7 +56,8 @@ public class PreGameController {
     public BasicResponse joinRace(String token, String entryCode) {
         StudentEntity student = persist.getStudentByToken(token);
         if (student != null) {
-            if (!persist.isStudentInAnyNonFinishedRace(student)) {
+            boolean raceCheck = persist.isStudentInAnyNonFinishedRace(student);
+            if (!raceCheck) {
                 if (entryCode != null && !entryCode.trim().isEmpty()) {
                     RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
                     if (race != null && race.getStatus() == RACE_STATUS_LOBBY) {

@@ -92,6 +92,7 @@ public class SseManager {
             if(sessions!=null && !sessions.isEmpty()){
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("event","GAME_STARTED");
+                jsonObject.put("isStarted", true);
                 jsonObject.put("raceId", raceId);
                 sendEvent(sessions, "game-started", jsonObject.toString());
             }
