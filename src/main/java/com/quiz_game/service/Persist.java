@@ -223,6 +223,13 @@ public class Persist {
         return count != null && count > 0;
     }
 
+    public QuestionTemplateEntity getQuestionTemplateByQuestionId(int questionId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM QuestionTemplateEntity q WHERE q.id = :questionId", QuestionTemplateEntity.class)
+                .setParameter("questionId", questionId)
+                .uniqueResult();
+    }
+
     public RaceEntity getRaceByRaceId(int raceId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM RaceEntity r WHERE r.id = :raceId", RaceEntity.class)

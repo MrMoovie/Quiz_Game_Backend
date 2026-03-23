@@ -3,7 +3,6 @@ package com.quiz_game.controllers;
 import com.quiz_game.entities.*;
 import com.quiz_game.responses.*;
 import com.quiz_game.service.Persist;
-import javassist.expr.NewArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,20 +55,80 @@ public class GameController {
 
         String object = persist.getRandomObjectName();
         questionTemplate.setTemplate(
-                "if " + persist.getRandomName() + " has " + random.nextInt(0, 10)
-                +" " + object + " and he " + persist.getRandomActionName() +" " + random.nextInt(0, 10)
-                +" " + object + " how many does he have right now."
-        ); //אם זה לא מובן לכם זה בגלל דניאל ברזסקי
+                "if " + persist.getRandomName() +
+                        " has " + random.nextInt(0, 10) + " " +
+                        object + " and he " +
+                        persist.getRandomActionName() + " " +
+                        random.nextInt(1, 10) + " " + // origin must be 1.
+                        object + " how many does he have right now."
+        );
         questionTemplate.setCreationDate(new java.util.Date());
         persist.save(questionTemplate);
         return new QuestionTemplateResponse(true, questionTemplate, null);
     }
 
+
+    ///  לא נבדק.
     @RequestMapping("/submit-answer")
-    //צריך לבדוק לגבי המשתנים
-    //צריך פונקציה לחישוב את התשובה מהתבנית כדי לדעת אם היא נכונה
-    public BasicResponse submitAnswer(String studentToken, int trackId, String answer, int questionId) {
-        return new BasicResponse(true, null);
+    public BasicResponse submitAnswer(String studentToken, int trackId, int questionId, String answer) {
+        StudentEntity studentEntity = persist.getStudentByToken(studentToken);
+        QuestionTemplateEntity questionTemplate = persist.getQuestionTemplateByQuestionId(questionId);
+
+        if (studentEntity == null || questionTemplate == null) {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+
+        if (!persist.isStudentInRace(studentEntity, trackId)) {
+            return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_STUDENT);
+        }
+
+        if (answer == null) return new BasicResponse(false, ERROR_MISSING_VALUES);
+
+        //  ניקוי רווחים וחילוץ המספר הראשון מהתשובה
+        String studentNumberStr;
+        java.util.regex.Matcher answerMatcher = java.util.regex.Pattern.compile("\\d+").matcher(answer);
+        if (answerMatcher.find()) {
+            // מצאתי את המספר בתשובה ושמתי אותו במשתנה:
+            studentNumberStr = answerMatcher.group();
+        } else {
+            //לא נמצא מספר בתשובה שלך
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+
+
+        String template = questionTemplate.getTemplate();
+
+        //  השוואה
+        double studentAnswerNum = Double.parseDouble(studentNumberStr);
+        //בדיקת שוויון בין מספרים עשרוניים בעזרת "מרחק" קטן (Epsilon)
+        // כדי למנוע טעויות דיוק של המחשב בחישובים (כמו חילוק)
+        if (Math.abs(getResult(template)- studentAnswerNum) < 0.001) {
+            return new RightAnswerResponse(true);
+        } else {
+            return new RightAnswerResponse(false);
+        }
+    }
+
+    private double getResult(String template) {
+        //  חילוץ נתונים מה-Template (שני המספרים הראשונים שאני מוצא)
+        java.util.regex.Matcher templateMatcher = java.util.regex.Pattern.compile("\\d+").matcher(template);
+
+        int num1 = 0, num2 = 1;
+        if (templateMatcher.find()) num1 = Integer.parseInt(templateMatcher.group());
+        //  גfind מחפש את המספר הבא.
+        if (templateMatcher.find()) num2 = Integer.parseInt(templateMatcher.group());
+
+        // operation string from template
+        if (template.contains("+") || template.contains("added") || template.contains("gives")) {
+            return num1 + num2;
+        } else if (template.contains("-") || template.contains("took") || template.contains("lost")) {
+            return num1 - num2;
+        } else if (template.contains("x") || template.contains("*") || template.contains("times")) {
+            return num1 * num2;
+        } else if (template.contains("/") || template.contains("divided")) {
+            return (num2 != 0) ? (double) num1 / num2 : 0;
+        }
+        return 0;
     }
 
 }
