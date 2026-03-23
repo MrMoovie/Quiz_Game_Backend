@@ -68,13 +68,16 @@ public class GameController {
     }
 
 
-    ///  לא נבדק.
+///  יש בעיה שמוגדר בדאטה בייס שבטבלת תבנית השאלה יכול להיות נוסח שאלה ייחודי בלבד
+///  מה שיכול להיות בעיה אם נוצר רנדומלי 2 שאלות זהות
+/// אולי להוריד את הייחודיות
+/// **צריך בדיקה נוספת**
     @RequestMapping("/submit-answer")
-    public BasicResponse submitAnswer(String studentToken, int trackId, int questionId, String answer) {
+    public BasicResponse submitAnswer(String studentToken, int trackId, int questionId, String answer, int pathChoice) {
         StudentEntity studentEntity = persist.getStudentByToken(studentToken);
         QuestionTemplateEntity questionTemplate = persist.getQuestionTemplateByQuestionId(questionId);
 
-        if (studentEntity == null || questionTemplate == null) {
+        if (studentEntity == null || questionTemplate == null ) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
 
@@ -96,19 +99,29 @@ public class GameController {
         }
 
 
-        String template = questionTemplate.getTemplate();
+
+
+        QuestionTemplateResponse response = (QuestionTemplateResponse) getNewQuestion(studentToken, trackId, pathChoice);
+        QuestionTemplateEntity question = new QuestionTemplateEntity();
+        questionTemplate.setDeleted(response.isDeleted());
+        questionTemplate.setDifficultyLevel(response.getDifficultyLevel());
+        questionTemplate.setTemplate(response.getQuestionTemplate());
+        questionTemplate.setCreationDate(response.getDate());
 
         //  השוואה
+        String template = questionTemplate.getTemplate();
         double studentAnswerNum = Double.parseDouble(studentNumberStr);
         //בדיקת שוויון בין מספרים עשרוניים בעזרת "מרחק" קטן (Epsilon)
         // כדי למנוע טעויות דיוק של המחשב בחישובים (כמו חילוק)
         if (Math.abs(getResult(template)- studentAnswerNum) < 0.001) {
-            return new RightAnswerResponse(true);
+            persist.save(questionTemplate);
+            return new RightAnswerResponse(true,question);
         } else {
-            return new RightAnswerResponse(false);
+            persist.save(questionTemplate);
+            return new RightAnswerResponse(false,question);
         }
     }
-
+    ///  צריך להוסיף עמודה בטבלת הactions שנקראת action operation ששם ליד כל שם של פעולה יהיה כתוב מה המשמעות המתמטית שלה
     private double getResult(String template) {
         //  חילוץ נתונים מה-Template (שני המספרים הראשונים שאני מוצא)
         java.util.regex.Matcher templateMatcher = java.util.regex.Pattern.compile("\\d+").matcher(template);

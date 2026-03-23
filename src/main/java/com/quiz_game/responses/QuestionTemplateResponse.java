@@ -36,4 +36,6 @@ public class QuestionTemplateResponse extends BasicResponse {
     public boolean isDeleted() {
         return deleted;
     }
+
+
 }
