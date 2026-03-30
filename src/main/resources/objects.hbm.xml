@@ -153,7 +153,7 @@
             <generator class="native"/>
         </id>
         <property name="objectName" type="string">
-            <column name="object_name" unique="true"/>
+            <column name="object_name"/>
         </property>
     </class>
 

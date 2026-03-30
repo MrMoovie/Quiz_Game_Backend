@@ -26,12 +26,18 @@ INSERT IGNORE INTO actions (action_name) VALUES
     ('lost');
 
 -- 4. Populate Question Templates
+-- 4. Populate Question Templates
 INSERT IGNORE INTO question_templates (template, max_number, level) VALUES
-    ('{NUM1} + {NUM2} = ?', 20, 'EASY'),
-    ('{NUM1} - {NUM2} = ?', 20, 'EASY'),
-    ('{NUM1} * {NUM2} = ?', 10, 'HARD'),
-    ('{NAME} had {NUM1} {OBJECT}s. They lost {NUM2} of them. How many are left?', 50, 'HARD'),
-    ('{NAME} {ACTION} {NUM1} {OBJECT}s. Then they {ACTION} {NUM2} more. How many in total?', 30, 'MEDIUM');
+    ('If {name} has {NUM1} {object}(s) and they {action} {NUM2} {object}(s), how many {object}(s) do they have now?', 10, 'Easy'),
+    ('{name} starts with {NUM1} {object}(s). After they {action} {NUM2} {object}(s), what is the final count?', 20, 'Easy'),
+    ('Yesterday, {name} had {NUM1} {object}(s). Today, they {action} {NUM2} {object}(s). How many {object}(s) are left with {name}?', 50, 'Medium'),
+    ('Suppose {name} collected {NUM1} {object}(s) over the summer. If they {action} {NUM2} of them, how many remain?', 50, 'Medium'),
+    ('{name} is organizing their room and counts {NUM1} {object}(s). Later, {name} {action} {NUM2} {object}(s). What is the new total?', 100, 'Hard'),
+    ('At the start of the week, {name} recorded {NUM1} {object}(s). By Friday, {name} had {action} {NUM2} {object}(s). Calculate the current number of {object}(s).', 100, 'Hard'),
+    ('Imagine {name} holds {NUM1} {object}(s) in a large bag. Once {name} {action} {NUM2} {object}(s), how many {object}(s) are accounted for?', 25, 'Easy'),
+    ('During a school project, {name} needed {NUM1} {object}(s). Suddenly, they {action} {NUM2} {object}(s). How many does {name} have at this moment?', 75, 'Medium'),
+    ('A magical chest contains {NUM1} {object}(s) belonging to {name}. If {name} {action} {NUM2} {object}(s), how many are inside the chest now?', 200, 'Hard'),
+    ('{name} was given {NUM1} {object}(s) for a birthday gift. After a few days, they {action} {NUM2} {object}(s). How many {object}(s) does {name} currently possess?', 15, 'Easy');
 
 -- 5. Populate Students
 INSERT IGNORE INTO students (username, password, contact_info, full_name, token) VALUES

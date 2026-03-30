@@ -48,19 +48,24 @@ public class GameController {
         if (pathChoice < 0 || pathChoice > 2) { // pathChoice = 0 (normal)  || 1 (dirt road) || 2 (highway)
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
+
         QuestionTemplateEntity questionTemplate = new QuestionTemplateEntity();
         questionTemplate.setDeleted(false);
         Random random = new Random();
         questionTemplate.setDifficultyLevel(String.valueOf(pathChoice));
 
+        String character = persist.getRandomName();
         String object = persist.getRandomObjectName();
+        String action = persist.getRandomActionName();
+        int has = random.nextInt(0, 10);
+        int change = random.nextInt(1, 10); // origin must be 1.
         questionTemplate.setTemplate(
-                "if " + persist.getRandomName() +
-                        " has " + random.nextInt(0, 10) + " " +
+                "if " + character +
+                        " has " + has + " " +
                         object + " and he " +
-                        persist.getRandomActionName() + " " +
-                        random.nextInt(1, 10) + " " + // origin must be 1.
-                        object + " how many does he have right now."
+                        action + " " +
+                        change + " " +
+                        object + " how many does he have right now?"
         );
         questionTemplate.setCreationDate(new java.util.Date());
         persist.save(questionTemplate);
