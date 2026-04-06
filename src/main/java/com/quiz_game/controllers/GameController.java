@@ -66,13 +66,14 @@ public class GameController {
         int num1 = random.nextInt(max - 19, max) + 1;
         int num2;
 
-        if (action.getActionOperation().equals("-")) {
-            num2 = random.nextInt(max - 19, num1) + 1;
-        } else if (action.getActionOperation().equals("/")) {
-            int randNum = random.nextInt(max - 19, num1) + 1;
-            num2 = randNum - (num1 % randNum);
-        } else {
-            num2 = random.nextInt(max - 19, max) + 1;
+        switch (action.getActionOperation()) {
+            case "-" -> num2 = random.nextInt(max - 19, num1) + 1;
+            case "/" -> {
+                int randNum = random.nextInt(max - 19, num1) + 1;
+                num2 = randNum - (num1 % randNum);
+            }
+            case "*" -> num2 = random.nextInt(2, 11);
+            default -> num2 = random.nextInt(max - 19, max) + 1;
         }
 
 
