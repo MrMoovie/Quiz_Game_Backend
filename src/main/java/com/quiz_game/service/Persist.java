@@ -180,21 +180,31 @@ public class Persist {
                 .getResultList();
     }
 
-    public String getRandomObjectName() {
-        return (String) this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT o.objectName FROM ObjectEntity o ORDER BY FUNCTION('RAND')")
+    public QuestionTemplateEntity getRandomTemplate(String level) {
+        return (QuestionTemplateEntity) this.sessionFactory.getCurrentSession()
+                .createQuery("FROM QuestionTemplateEntity q WHERE q.level = :level ORDER BY FUNCTION('RAND')")
+                .setParameter("level", level)
                 .setMaxResults(1)
                 .uniqueResult();
     }
-    public String getRandomName() {
-        return (String) this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT n.name FROM NameEntity n ORDER BY FUNCTION('RAND')")
+
+    public ObjectEntity getRandomObject() {
+        return (ObjectEntity) this.sessionFactory.getCurrentSession()
+                .createQuery("FROM ObjectEntity ORDER BY FUNCTION('RAND')")
                 .setMaxResults(1)
                 .uniqueResult();
     }
-    public String getRandomActionName() {
-        return (String) this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT a.actionName FROM ActionEntity a ORDER BY FUNCTION('RAND')")
+
+    public NameEntity getRandomName() {
+        return (NameEntity) this.sessionFactory.getCurrentSession()
+                .createQuery("FROM NameEntity ORDER BY FUNCTION('RAND')")
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+
+    public ActionEntity getRandomAction() {
+        return (ActionEntity) this.sessionFactory.getCurrentSession()
+                .createQuery("FROM ActionEntity ORDER BY FUNCTION('RAND')")
                 .setMaxResults(1)
                 .uniqueResult();
     }
@@ -236,6 +246,20 @@ public class Persist {
                 .setParameter("raceId", raceId)
                 .uniqueResult();
     }
+
+    public TrackEntity getTrackByTrackId(int trackId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM TrackEntity t WHERE t.id = :trackId", TrackEntity.class)
+                .setParameter("trackId", trackId)
+                .uniqueResult();
+    }
+    public QuestionEntity getQuestionById(int questionId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM QuestionEntity q WHERE q.id = :questionId",  QuestionEntity.class)
+                .setParameter("questionId", questionId)
+                .uniqueResult();
+    }
+
     public ProffesionalEntity getProfessionalByToken(String token) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM ProffesionalEntity " +

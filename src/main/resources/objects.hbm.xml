@@ -142,10 +142,10 @@
             <generator class="native"/>
         </id>
         <property name="template" type="string">
-            <column name="template" unique="true"/>
+            <column name="template" unique="false"/>
         </property>
         <property name="maxNumber" type="int" column="max_number"/>
-        <property name="difficultyLevel" type="string" column="level"/>
+        <property name="level" type="string" column="level"/>
     </class>
 
     <class name="com.quiz_game.entities.ObjectEntity" table="objects" lazy="false">
@@ -173,18 +173,27 @@
         <property name="actionName" type="string">
             <column name="action_name" unique="true"/>
         </property>
+        <property name="actionOperation" type="string">
+            <column name="action_operation"/>
+        </property>
     </class>
 
 
-<!--    <class name="com.quiz_game.entities.QuestionEntity" table="questions" lazy="false">-->
-<!--        <id name="id" type="int" column="id">-->
-<!--            <generator class="native"/>-->
-<!--        </id>-->
-<!--        <property name="question" type="string">-->
-<!--            <column name="question"/>-->
-<!--        </property>-->
-<!--        <property name="answer" type="int"/>-->
-<!--    </class>-->
+    <class name="com.quiz_game.entities.QuestionEntity" table="questions" lazy="false">
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="track" class="com.quiz_game.entities.TrackEntity" column="track_id"/>
+        <property name="question" type="string">
+            <column name="question"/>
+        </property>
+        <property name="answer" type="int"/>
+
+        <property name="creationDate" type="java.util.Date">
+            <column name="time_stamp"/>
+        </property>
+
+    </class>
 
 
     <!--    <class name="com.quiz_game.entities.ProffesionalEntity" table="professional" lazy="false">-->

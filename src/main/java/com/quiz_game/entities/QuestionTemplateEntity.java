@@ -3,7 +3,7 @@ package com.quiz_game.entities;
 public class QuestionTemplateEntity extends BaseEntity{
     private String template;
     private int maxNumber;
-    private String difficultyLevel;
+    private String level;
 
     public String getTemplate() {
         return template;
@@ -21,11 +21,11 @@ public class QuestionTemplateEntity extends BaseEntity{
         this.maxNumber = maxNumber;
     }
 
-    public String getDifficultyLevel() {
-        return difficultyLevel;
+    public String getLevel() {
+        return level;
     }
 
-    public void setDifficultyLevel(String difficultyLevel) {
-        this.difficultyLevel = difficultyLevel;
+    public void setLevel(String level) {
+        this.level = level;
     }
 }

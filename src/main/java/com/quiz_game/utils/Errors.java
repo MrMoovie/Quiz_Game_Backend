@@ -9,6 +9,7 @@ public class Errors {
     public static final int ERROR_POST_NOT_FOUND = 1006;
     public static final int ERROR_UNKNOWN_RACE_FOR_TEACHER = 1007;
     public static final int ERROR_UNKNOWN_RACE_FOR_STUDENT = 1008;
+    public static final int ERROR_UNKNOWN_QUESTION_FOR_TRACK = 1011;
     public static final int ERROR_RACE_CANT_BE_STARTED = 1009;
     public static final int ERROR_ALREADY_HAVE_AN_OPEN_RACE = 1010;
 
