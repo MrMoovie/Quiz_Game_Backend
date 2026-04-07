@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 
+import java.awt.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -61,20 +62,10 @@ public class GameController {
 
         Random random = new Random();
 
-        int max = questionTemplate.getMaxNumber(); // max = 20 for example.
-
-        int num1 = random.nextInt(max - 19, max) + 1;
-        int num2;
-
-        switch (action.getActionOperation()) {
-            case "-" -> num2 = random.nextInt(max - 19, num1) + 1;
-            case "/" -> {
-                int randNum = random.nextInt(max - 19, num1) + 1;
-                num2 = randNum - (num1 % randNum);
-            }
-            case "*" -> num2 = random.nextInt(2, 11);
-            default -> num2 = random.nextInt(max - 19, max) + 1;
-        }
+        int max = questionTemplate.getMaxNumber();
+        // צריך לעבוד על זה:
+        int num1 = random.nextInt(2, max);
+        int num2 = random.nextInt(2, max);
 
 
         String newQuestionTemplate = questionTemplate.getTemplate()
@@ -144,7 +135,7 @@ public class GameController {
         boolean rightAnswer = question.getAnswer() == answer;
         // לפי דעתי זה סלט אבל בסדר:
         // כאן אני גם כבר קורא לשאלה חדשה:
-        BasicResponse basicResponse = getNewQuestion(studentToken,trackId,pathChoice);
+        BasicResponse basicResponse = getNewQuestion(studentToken, trackId, pathChoice);
         if (basicResponse.isSuccess()) {
             QuestionResponse questionResponse = (QuestionResponse) basicResponse;
             QuestionEntity newQuestion = questionResponse.getQuestion();
