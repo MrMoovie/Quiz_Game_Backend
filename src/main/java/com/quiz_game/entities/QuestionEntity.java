@@ -1,6 +1,7 @@
 package com.quiz_game.entities;
 
-public class QuestionEntity extends BaseEntity{
+public class QuestionEntity extends BaseEntity {
+    private TrackEntity track;
     private String question;
     private int answer;
 
@@ -18,5 +19,13 @@ public class QuestionEntity extends BaseEntity{
 
     public void setQuestion(String question) {
         this.question = question;
+    }
+
+    public TrackEntity getTrack() {
+        return track;
+    }
+
+    public void setTrack(TrackEntity track) {
+        this.track = track;
     }
 }
