@@ -30,6 +30,9 @@ public class SignController {
         try {
             if (username != null && password != null && fullName != null && selectedType != 0) {
                 BasicUser userEntity = persist.getUserByUsername(username);
+                if (password.length() < 6 || !fullName.contains(" ")) {
+                    return new BasicResponse(false, 1005);
+                }
                 if (userEntity != null) {
                     return new BasicResponse(false, ERROR_USERNAME_ALREADY_EXISTS);
                 } else {
