@@ -6,18 +6,15 @@ import com.quiz_game.responses.LoginResponse; // ייבוא ה-Response המפו
 import com.quiz_game.service.Persist;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 import static com.quiz_game.utils.Constants.*;
 import static com.quiz_game.utils.Errors.*;
 
 @RestController
 public class SignController {
-
     @Autowired
     private Persist persist;
 
@@ -25,81 +22,79 @@ public class SignController {
      * הרשמה למערכת - Sign Up
      * מקבל: שם משתמש, סיסמה, שם מלא וסוג משתמש
      */
-    @RequestMapping("/signup")
-    public BasicResponse addUser(int selectedType, String username, String password, String fullName) {
-        try {
-            if (username != null && password != null && fullName != null && selectedType != 0) {
-                BasicUser userEntity = persist.getUserByUsername(username);
-                if (userEntity != null) {
-                    return new BasicResponse(false, ERROR_USERNAME_ALREADY_EXISTS);
-                } else {
-                    if (selectedType == USER_TYPE_STUDENT) {
-                        StudentEntity studentEntity = new StudentEntity();
-                        studentEntity.setUsername(username);
-                        studentEntity.setPassword(password);
-                        studentEntity.setFullName(fullName);
-                        String token = GeneralUtils.hashMd5(username, password);
-                        studentEntity.setToken(token);
-                        persist.save(studentEntity);
-                        return new LoginResponse(true, null, 1, token, studentEntity.getId(), selectedType);
-                    } else {
-                        TeacherEntity teacherEntity = new TeacherEntity();
-                        teacherEntity.setFullName(fullName);
-                        teacherEntity.setUsername(username);
-                        teacherEntity.setPassword(password);
-                        String token = GeneralUtils.hashMd5(username, password);
-                        teacherEntity.setToken(token);
-                        persist.save(teacherEntity);
-                        return new LoginResponse(true, null, 1, token, teacherEntity.getId(), selectedType);
-                    }
-                }
-            } else {
-                return new BasicResponse(false, ERROR_MISSING_VALUES);
-            }
+    @PostMapping("/signup")
+    public BasicResponse addUser(int selectedType, String username, String password, String confirmPassword, String fullName) {
+        if (isNotValidating(fullName) || !fullName.trim().contains(" ")) {
+            return new BasicResponse(false, ERROR_FULL_NAME_REQUIRED);
 
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return null;
+        if (isNotValidating(username)) {
+            return new BasicResponse(false, ERROR_USERNAME_REQUIRED);
+        }
+
+        if (isNotValidating(password) || password.trim().length() < 6) {
+            return new BasicResponse(false, ERROR_PASSWORD_REQUIRED);
+        }
+        if (!password.equals(confirmPassword)) {
+            return new BasicResponse(false, ERROR_PASSWORDS_MISMATCH);
+        }
+
+        BasicUser userEntity = persist.getUserByUsername(username);
+        if (userEntity != null) {
+            return new BasicResponse(false, ERROR_USERNAME_ALREADY_EXISTS);
+        }
+
+        if (selectedType == USER_TYPE_STUDENT) {
+            StudentEntity studentEntity = new StudentEntity();
+            studentEntity.setUsername(username);
+            studentEntity.setPassword(password);
+            studentEntity.setFullName(fullName);
+            String token = GeneralUtils.hashMd5(username, password);
+            studentEntity.setToken(token);
+            persist.save(studentEntity);
+            return new LoginResponse(true, null, token, studentEntity.getId(), selectedType);
+        } else if (selectedType == USER_TYPE_TEACHER) {
+            TeacherEntity teacherEntity = new TeacherEntity();
+            teacherEntity.setFullName(fullName);
+            teacherEntity.setUsername(username);
+            teacherEntity.setPassword(password);
+            String token = GeneralUtils.hashMd5(username, password);
+            teacherEntity.setToken(token);
+            persist.save(teacherEntity);
+            return new LoginResponse(true, null, token, teacherEntity.getId(), selectedType);
+        }
+        return new BasicResponse(false, ERROR_MISSING_VALUES);
     }
 
-    @RequestMapping ("/login")
-    public BasicResponse getUser (String username, String password, int selectedType) {
-        try {
-            if (username != null && password != null) {
-                if (selectedType == USER_TYPE_STUDENT) {
-                    StudentEntity studentEntity = persist.getStudentByUsernameAndPassword(username, password);
-                    if (studentEntity != null) {
-                        String token = GeneralUtils.hashMd5(username, password);
-                        studentEntity.setToken(token);
-                        persist.save(studentEntity);
-                        return new LoginResponse(true, null, 1, token, studentEntity.getId(), selectedType);
-                    } else {
-                        return new BasicResponse(false,  ERROR_WRONG_CREDENTIALS);
-                    }
-                } else {
-                    TeacherEntity teacherEntity = persist.getTeacherByUsernameAndPassword(username, password);
-                    if (teacherEntity != null) {
-                        String token = GeneralUtils.hashMd5(username, password);
-                        teacherEntity.setToken(token);
-                        persist.save(teacherEntity);
-                        return new LoginResponse(true, null, 1, token, teacherEntity.getId(), selectedType);
-                    } else {
-                        return new BasicResponse(false,  ERROR_WRONG_CREDENTIALS);
-                    }
-
-                }
-            } else {
-                return new BasicResponse(false, ERROR_MISSING_USERNAME_OR_PASSWORD);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    private boolean isNotValidating(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return true;
         }
-        return null;
+        boolean hasLetter = str.matches(".*[a-zA-Z].*");
+        boolean hasDigit = str.matches(".*[0-9].*");
 
+        return !hasLetter && !hasDigit;
     }
 
-    // >> wrong persist function, not following the conventions of the code << //
+    @RequestMapping("/login")
+    public BasicResponse getUser(String username, String password, int selectedType) {
+        BasicUser userEntity = persist.getUserByUsername(username);
+        if (selectedType != USER_TYPE_STUDENT && selectedType != USER_TYPE_TEACHER) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+        if (userEntity == null || !userEntity.getPassword().equals(password)) {
+            return new BasicResponse(false, ERROR_MISSING_USERNAME_OR_PASSWORD);
+        }
+        if (userEntity instanceof StudentEntity && selectedType == USER_TYPE_TEACHER ||
+                userEntity instanceof TeacherEntity && selectedType == USER_TYPE_STUDENT) {
+            return new BasicResponse(false, ERROR_MISSING_USERNAME_OR_PASSWORD);
+        }
+        String token = GeneralUtils.hashMd5(username, password);
+        return new LoginResponse(true, null, userEntity.getToken() // || token
+                , userEntity.getId(), selectedType);
+    }
+
+// >> wrong persist function, not following the conventions of the code << //
 //    @RequestMapping(value = "/signup", method = RequestMethod.POST)
 //    public BasicResponse signUp(String username, String password, String fullName, int userType) {
 //        BasicResponse response;
@@ -132,12 +127,12 @@ public class SignController {
 //        return response;
 //    }
 
-    /**
-     * התחברות למערכת - Sign In
-     * מקבל: שם משתמש וסיסמה
-     */
+/**
+ * התחברות למערכת - Sign In
+ * מקבל: שם משתמש וסיסמה
+ */
 
-    // >> wrong persist function, not following the conventions of the code << //
+// >> wrong persist function, not following the conventions of the code << //
 //    @RequestMapping(value = "/signin", method = RequestMethod.POST)
 //    public LoginResponse signIn(String username, String password) {
 //        //  חיפוש המשתמש לפי שם משתמש וסיסמה

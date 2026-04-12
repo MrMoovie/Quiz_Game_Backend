@@ -1,32 +1,21 @@
 package com.quiz_game.responses;
 
 public class LoginResponse extends BasicResponse {
-    private int permission;
     private String token;
     private int id;
     private int userType;
 
-    public LoginResponse(boolean success, Integer errorCode, int permission, String token, int id,
+    public LoginResponse(boolean success, Integer errorCode, String token, int id,
                          int userType) {
         super(success, errorCode);
-        this.permission = permission;
         this.token = token;
         this.id = id;
         this.userType = userType;
     }
 
     public LoginResponse(int permission, String token, int id) {
-        this.permission = permission;
         this.token = token;
         this.id = id;
-    }
-
-    public int getPermission() {
-        return permission;
-    }
-
-    public void setPermission(int permission) {
-        this.permission = permission;
     }
 
     public LoginResponse() {

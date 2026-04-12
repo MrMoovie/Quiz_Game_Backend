@@ -42,6 +42,7 @@ public class PreGameController {
             RaceEntity race = new RaceEntity();
             race.setTeacher(teacher);
             race.setEntryCode(entryCode);
+            race.setMaxCapacity(8);
             race.setStatus(0);
             persist.save(race);
             //HAS TO SUBSCRIBE
