@@ -52,10 +52,10 @@ INSERT IGNORE INTO teachers (username, password, contact_info, full_name, token)
     ('teacher_amir', 'teachpass', 'amir.k@school.edu', 'Amir Katz', 'tok_tch_002');
 
 -- 7. Populate Races
--- INSERT IGNORE INTO races (teacher_id, entry_code, maxCapacity, status) VALUES
---    (1,'123456',8,0);
---
--- -- -- 8. Populate Tracks
--- -- -- Linking students (IDs 1-4) to races (IDs 1-3)
--- INSERT IGNORE INTO tracks (student_id, race_id, score, path, path_chance, power_up, position) VALUES
---     (1,1,0,0,0,0,0);
+INSERT IGNORE INTO races (teacher_id, entry_code, maxCapacity, status) VALUES
+   (1,'123456',8,0);
+
+-- -- 8. Populate Tracks
+-- -- Linking students (IDs 1-4) to races (IDs 1-3)
+INSERT IGNORE INTO tracks (student_id, race_id, score, path, path_chance, power_up, position) VALUES
+    (1,1,0,0,0,0,0);
