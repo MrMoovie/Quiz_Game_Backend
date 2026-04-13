@@ -1,13 +1,11 @@
 package com.quiz_game.controllers;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import com.quiz_game.entities.RaceEntity;
 import com.quiz_game.entities.StudentEntity;
 import com.quiz_game.entities.TeacherEntity;
 import com.quiz_game.entities.TrackEntity;
-import com.quiz_game.responses.BasicResponse;
-import com.quiz_game.responses.CreateRaceResponse;
-import com.quiz_game.responses.JoinRaceResponse;
-import com.quiz_game.responses.RacesResponse;
+import com.quiz_game.responses.*;
 import com.quiz_game.service.Persist;
 import com.quiz_game.service.SseManager;
 import com.quiz_game.utils.GeneralUtils;
@@ -32,6 +30,20 @@ public class PreGameController {
 
     @PostConstruct
     public void init() {
+    }
+
+    @RequestMapping("lobby-info")
+    public BasicResponse getLobbyInfo(Integer raceId, String token){
+        StudentEntity student = persist.getStudentByToken(token);
+        TeacherEntity teacher = persist.getTeacherByToken(token);
+        if(student==null&&teacher==null){
+            return new BasicResponse(false, ERROR_WRONG_CREDENTIALS);
+        }
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+        if(race==null){
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+        return new LobbyInfoResponse(true, null, race.getTeacher().getFullName(), persist.getAllStudentsByRaceID(race.getId()));
     }
 
     @RequestMapping("/create-race")
@@ -67,7 +79,9 @@ public class PreGameController {
                         track.setStudent(student);
                         persist.save(track);
 
-                        sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
+//                        sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
+                        sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
+
                         //HAS TO SUBSCRIBE
                         return new JoinRaceResponse(true, null, race.getId());
                     } else {
@@ -105,8 +119,11 @@ public class PreGameController {
                     if (!persist.isAnyRaceOpenForTeacher(teacher)) {
                         race.setStatus(RACE_STATUS_STARTED);
                         persist.save(race);
-                        List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
-                        sseManager.gameStarted(studentTokens, race.getId());
+
+//                        List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
+//                        sseManager.gameStarted(studentTokens, race.getId());
+                        sseManager.gameStarted( race.getId());
+
                         return new BasicResponse(true, null);
                     } else {
                         return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
