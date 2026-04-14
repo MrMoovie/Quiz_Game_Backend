@@ -54,7 +54,7 @@ public class PreGameController {
             RaceEntity race = new RaceEntity();
             race.setTeacher(teacher);
             race.setEntryCode(entryCode);
-            race.setMaxCapacity(8);
+            race.setMaxCapacity(0);
             race.setStatus(0);
             persist.save(race);
             //HAS TO SUBSCRIBE
@@ -70,7 +70,7 @@ public class PreGameController {
         StudentEntity student = persist.getStudentByToken(token);
         if (student != null) {
             boolean raceCheck = persist.isStudentInAnyNonFinishedRace(student);
-            if (!raceCheck) {
+         //   if (!raceCheck) {
                 if (entryCode != null && !entryCode.trim().isEmpty()) {
                     RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
                     if (race != null && race.getStatus() == RACE_STATUS_LOBBY) {
@@ -90,9 +90,9 @@ public class PreGameController {
                 } else {
                     return new BasicResponse(false, ERROR_MISSING_VALUES);
                 }
-            } else {
-                return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-            }
+//            } else {
+//                return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
+//            }
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
@@ -116,7 +116,7 @@ public class PreGameController {
             RaceEntity race = persist.getRaceByRaceId(raceId);
             if (persist.isTeacherHostingRace(teacher, raceId)) {
                 if (race.getStatus() == RACE_STATUS_LOBBY) {
-                    if (!persist.isAnyRaceOpenForTeacher(teacher)) {
+                   // if (!persist.isAnyRaceOpenForTeacher(teacher)) {
                         race.setStatus(RACE_STATUS_STARTED);
                         persist.save(race);
 
@@ -125,9 +125,9 @@ public class PreGameController {
                         sseManager.gameStarted( race.getId());
 
                         return new BasicResponse(true, null);
-                    } else {
-                        return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-                    }
+//                    } else {
+//                        return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
+//                    }
                 } else {
                     return new BasicResponse(false, ERROR_RACE_CANT_BE_STARTED);
                 }

@@ -13,6 +13,7 @@ public class TrackEntity extends BaseEntity{
     private int pathChance;
     private int powerUp;
     private int position;
+    private int currentQuestionId;
 
     public TrackEntity() {
     }
@@ -71,5 +72,13 @@ public class TrackEntity extends BaseEntity{
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public int getCurrentQuestionId() {
+        return currentQuestionId;
+    }
+
+    public void setCurrentQuestionId(int currentQuestionId) {
+        this.currentQuestionId = currentQuestionId;
     }
 }
