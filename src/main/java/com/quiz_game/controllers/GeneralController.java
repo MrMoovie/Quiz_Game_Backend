@@ -181,15 +181,15 @@ public class GeneralController {
 //        }
 //    }
 //
-//    @RequestMapping("/get-default-params")
-//    public BasicResponse getDefaultParams (String token) {
-//        BasicUser basicUser = persist.getUserByToken(token);
-//        if (basicUser != null) {
-//            return new DefaultParamResponse(true, null, basicUser);
-//        } else {
-//            return new BasicResponse(false, ERROR_WRONG_CREDENTIALS);
-//        }
-//    }
+    @RequestMapping("/get-default-params")
+    public BasicResponse getDefaultParams (String token) {
+        BasicUser basicUser = persist.getUserByToken(token);
+        if (basicUser != null) {
+            return new DefaultParamsResponse(true, null, basicUser);
+        } else {
+            return new BasicResponse(false, ERROR_WRONG_CREDENTIALS);
+        }
+    }
 //
 //    @RequestMapping("/add-post")
 //    public BasicResponse addPost (String token, String text, String fileLink, String area,int categoryId) {

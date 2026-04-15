@@ -1,5 +1,7 @@
 package com.quiz_game.entities;
 
+import static com.quiz_game.utils.Constants.USER_TYPE_STUDENT;
+
 public class ProffesionalEntity extends BasicUser{
 
     private int plan;
