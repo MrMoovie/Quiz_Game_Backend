@@ -253,6 +253,16 @@ public class Persist {
                 .setParameter("trackId", trackId)
                 .uniqueResult();
     }
+    public TrackEntity getTrackByStudentToken(String studentToken) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery(
+                        "SELECT t FROM TrackEntity t " +
+                                "JOIN t.student s " + // מניח שיש קשר ב-Entity בין Track ל-Student
+                                "WHERE s.token = :token", TrackEntity.class)
+                .setParameter("token", studentToken)
+                .uniqueResult();
+    }
+
     public QuestionEntity getQuestionById(int questionId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM QuestionEntity q WHERE q.id = :questionId",  QuestionEntity.class)

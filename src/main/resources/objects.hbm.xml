@@ -130,6 +130,9 @@
         <property name="position" type="int">
             <column name="position" default="0"/>
         </property>
+        <property name="currentQuestionId" type="int">
+            <column name="current_question_id" default="0"/>
+        </property>
         <!--        </property>-->
         <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
         <!--        <property name="deleted" type="boolean">-->

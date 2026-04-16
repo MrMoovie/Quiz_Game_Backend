@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 
-import java.awt.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -102,7 +101,6 @@ public class GameController {
         return new QuestionResponse(newQuestion);
     }
 
-    // אם צריך:}
     @RequestMapping("/getQuestion")
     public BasicResponse getExistingQuestion(int questionId) {
         QuestionEntity questionEntity = persist.getQuestionById(questionId);
@@ -111,12 +109,9 @@ public class GameController {
         }
         return new QuestionResponse(questionEntity);
     }
-    //}
 
-    // באופן מוחלט אסור לגרום לכך שפונקציית getNewQuestion
-    // תקרא ל submitAnswer כי אז יהיה לופ אינסופי של פונקציות רקורסיביות
     @RequestMapping("/submit-answer")
-    public BasicResponse submitAnswer(String studentToken, int trackId, int questionId, int answer, int pathChoice) {
+    public BasicResponse submitAnswer(String studentToken, int trackId, int questionId, int answer) {
         StudentEntity studentEntity = persist.getStudentByToken(studentToken);
         QuestionEntity question = persist.getQuestionById(questionId);
         if (studentEntity == null || question == null) {
@@ -128,20 +123,49 @@ public class GameController {
         if (question.getTrack().getId() != trackId) {
             return new BasicResponse(false, ERROR_UNKNOWN_QUESTION_FOR_TRACK);
         }
-        if (pathChoice < 0 || pathChoice > 2) { // pathChoice = 0 (normal)  || 1 (dirt road) || 2 (highway)
-            return new BasicResponse(false, ERROR_MISSING_VALUES);
-        }
 
         boolean rightAnswer = question.getAnswer() == answer;
-        // לפי דעתי זה סלט אבל בסדר:
-        // כאן אני גם כבר קורא לשאלה חדשה:
-        BasicResponse basicResponse = getNewQuestion(studentToken, trackId, pathChoice);
-        if (basicResponse.isSuccess()) {
-            QuestionResponse questionResponse = (QuestionResponse) basicResponse;
-            QuestionEntity newQuestion = questionResponse.getQuestion();
-            return new RightAnswerResponse(rightAnswer, newQuestion);
-        }
-        return new RightAnswerResponse(rightAnswer, null);
+        return new RightAnswerResponse(rightAnswer, question);
     }
+
+
+    @RequestMapping("/set-track")
+    public BasicResponse setTrack(int trackId,int score, int path, int pathChance, int powerUp, int position) {
+        TrackEntity track = persist.getTrackByTrackId(trackId);
+        if (track == null) {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+        track.setScore(score);
+        track.setPath(path);
+        track.setPathChance(pathChance);
+        track.setPowerUp(powerUp);
+        track.setPosition(position);
+        persist.save(track);
+        return new TrackResponse(track);
+    }
+
+    @RequestMapping("/get-track")
+    public BasicResponse getTrack(String studentToken) {
+        TrackEntity track = persist.getTrackByStudentToken(studentToken);
+        if (track == null) {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+        return new TrackResponse(track);
+    }
+
+    @RequestMapping("/set-status-for-student")
+    public BasicResponse setRaceStatusForStudent(int trackId, int status) {
+        TrackEntity track = persist.getTrackByTrackId(trackId);
+        if (track == null) {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+        // track entity cant exist without race, so race cant be null.
+        RaceEntity race = persist.getRaceByRaceId(track.getRace().getId());
+        race.setStatus(status);
+        persist.save(race);
+        return new RaceResponse(race);
+    }
+
+
 
 }

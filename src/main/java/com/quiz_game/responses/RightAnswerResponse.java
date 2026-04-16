@@ -4,19 +4,19 @@ import com.quiz_game.entities.QuestionEntity;
 
 public class RightAnswerResponse extends BasicResponse {
     private final boolean rightAnswer;
-    private final QuestionEntity newQuestion;
+    private final QuestionEntity question;
 
-    public RightAnswerResponse(boolean rightAnswer, QuestionEntity newQuestion) {
+    public RightAnswerResponse(boolean rightAnswer, QuestionEntity question) {
         super(true, null);
         this.rightAnswer = rightAnswer;
-        this.newQuestion = newQuestion;
+        this.question = question;
     }
 
     public boolean isRightAnswer() {
         return rightAnswer;
     }
 
-    public QuestionEntity getNewQuestion() {
-        return newQuestion;
+    public QuestionEntity getQuestion() {
+        return question;
     }
 }
