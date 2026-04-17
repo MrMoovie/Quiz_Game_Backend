@@ -33,17 +33,18 @@ public class PreGameController {
     }
 
     @RequestMapping("lobby-info")
-    public BasicResponse getLobbyInfo(Integer raceId, String token){
+    public BasicResponse getLobbyInfo(Integer raceId, String token) {
         StudentEntity student = persist.getStudentByToken(token);
         TeacherEntity teacher = persist.getTeacherByToken(token);
-        if(student==null&&teacher==null){
+        if (student == null && teacher == null) {
             return new BasicResponse(false, ERROR_WRONG_CREDENTIALS);
         }
         RaceEntity race = persist.getRaceByRaceId(raceId);
-        if(race==null){
+        if (race == null) {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
-        return new LobbyInfoResponse(true, null, race.getTeacher().getFullName(), persist.getAllStudentsByRaceID(race.getId()));
+        List<StudentEntity> studentsInRace = persist.getAllStudentsByRaceID(race.getId());
+        return new LobbyInfoResponse(true, null, race.getTeacher().getFullName(), studentsInRace);
     }
 
     @RequestMapping("/create-race")
@@ -54,8 +55,8 @@ public class PreGameController {
             RaceEntity race = new RaceEntity();
             race.setTeacher(teacher);
             race.setEntryCode(entryCode);
-            race.setMaxCapacity(0);
-            race.setStatus(0);
+            race.setCapacity(0);
+            race.setStatus(RACE_STATUS_LOBBY);
             persist.save(race);
             //HAS TO SUBSCRIBE
             return new CreateRaceResponse(true, null, race.getId(), entryCode);
@@ -68,35 +69,36 @@ public class PreGameController {
     @RequestMapping("/join-race")
     public BasicResponse joinRace(String token, String entryCode) {
         StudentEntity student = persist.getStudentByToken(token);
-        if (student != null) {
-            boolean raceCheck = persist.isStudentInAnyNonFinishedRace(student);
-         //   if (!raceCheck) {
-                if (entryCode != null && !entryCode.trim().isEmpty()) {
-                    RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
-                    if (race != null && race.getStatus() == RACE_STATUS_LOBBY) {
-                        TrackEntity track = new TrackEntity();
-                        track.setRace(race);
-                        track.setStudent(student);
-                        persist.save(track);
-
-//                        sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
-                        sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
-
-                        //HAS TO SUBSCRIBE
-                        return new JoinRaceResponse(true, null, race.getId());
-                    } else {
-                        return new BasicResponse(false, ERROR_MISSING_VALUES);
-                    }
-                } else {
-                    return new BasicResponse(false, ERROR_MISSING_VALUES);
-                }
-//            } else {
-//                return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-//            }
-        } else {
+        if (student == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
+//        if (persist.isStudentInAnyNonFinishedRace(student)) {
+//            return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
+//        }
+        RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
+        if (race == null || entryCode.trim().isEmpty()) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+        if (race.getCapacity() > 8) { // MAX CAPACITY = 8
+            return new BasicResponse(false, ERROR_RACE_IS_FULL);
+        }
+        if (race.getStatus() == RACE_STATUS_LOBBY) {
+            TrackEntity track = new TrackEntity();
+            track.setRace(race);
+            track.setStudent(student);
+            persist.save(track);
+            race.setCapacity(race.getCapacity() + 1);
+            persist.save(race);
+//          sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
+            sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
+
+            //HAS TO SUBSCRIBE
+            return new JoinRaceResponse(true, null, race.getId());
+        } else {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
     }
+
 
 
     @RequestMapping("/get-all-races")
@@ -109,33 +111,50 @@ public class PreGameController {
         }
     }
 
+    @RequestMapping("/get-all-teacher-races")
+    public BasicResponse getAllTeacherRaces(String token) {
+        TeacherEntity teacher = persist.getTeacherByToken(token);
+        if (teacher != null) {
+            return new RacesResponse(true, null, persist.getRacesByTeacherId(teacher.getId()));
+        } else {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+    }
+    @RequestMapping("/get-race")
+    public BasicResponse getRace(int raceId) {
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+        if (race == null) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+        return new RaceResponse(race);
+    }
+
     @RequestMapping("/start-race")
     public BasicResponse startRace(String token, int raceId) {
         TeacherEntity teacher = persist.getTeacherByToken(token);
-        if (teacher != null) {
-            RaceEntity race = persist.getRaceByRaceId(raceId);
-            if (persist.isTeacherHostingRace(teacher, raceId)) {
-                if (race.getStatus() == RACE_STATUS_LOBBY) {
-                   // if (!persist.isAnyRaceOpenForTeacher(teacher)) {
-                        race.setStatus(RACE_STATUS_STARTED);
-                        persist.save(race);
-
-//                        List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
-//                        sseManager.gameStarted(studentTokens, race.getId());
-                        sseManager.gameStarted( race.getId());
-
-                        return new BasicResponse(true, null);
-//                    } else {
-//                        return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-//                    }
-                } else {
-                    return new BasicResponse(false, ERROR_RACE_CANT_BE_STARTED);
-                }
-            } else {
-                return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
-            }
-        } else {
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+        if (teacher == null || race == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+        if (!persist.isTeacherHostingRace(teacher, raceId)) {
+            return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
+        }
+//        if (persist.isAnyRaceOpenForTeacher(teacher)) {
+//            return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
+//        }
+        if (race.getStatus() == RACE_STATUS_LOBBY) {
+
+            race.setStatus(RACE_STATUS_STARTED);
+            persist.save(race);
+
+//          List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
+//          sseManager.gameStarted(studentTokens, race.getId());
+            sseManager.gameStarted(race.getId());
+
+            return new BasicResponse(true, null);
+
+        } else {
+            return new BasicResponse(false, ERROR_RACE_CANT_BE_STARTED);
         }
     }
 }

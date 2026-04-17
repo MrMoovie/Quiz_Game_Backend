@@ -308,6 +308,13 @@ public class Persist {
                 .list();
     }
 
+    public List<RaceEntity> getRacesByTeacherId(int teacherId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM RaceEntity r WHERE r.teacher.id = :teacherId", RaceEntity.class)
+                .setParameter("teacherId", teacherId)
+                .list();
+    }
+
     public boolean isAnyRaceOpenForTeacher(TeacherEntity teacher) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("SELECT 1 FROM RaceEntity r WHERE r.status = 1 AND r.teacher = :teacher", Integer.class)

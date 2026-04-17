@@ -45,7 +45,7 @@ public class GameController {
         if (!persist.isStudentInRace(studentEntity, trackId)) {
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_STUDENT);
         }
-        if (pathChoice < 0 || pathChoice > 2) { // pathChoice = 0 (normal)  || 1 (dirt road) || 2 (highway)
+        if (pathChoice < 0 || pathChoice > 2) { // pathChoice = 0 (normal)  || 1 (dirt road) (easy) || 2 (highway) (hard)
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
 
