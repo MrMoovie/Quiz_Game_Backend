@@ -5,6 +5,8 @@ public class QuestionEntity extends BaseEntity {
     private String question;
     private int answer;
 
+    private int score;
+
     public int getAnswer() {
         return answer;
     }
@@ -27,5 +29,13 @@ public class QuestionEntity extends BaseEntity {
 
     public void setTrack(TrackEntity track) {
         this.track = track;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 }

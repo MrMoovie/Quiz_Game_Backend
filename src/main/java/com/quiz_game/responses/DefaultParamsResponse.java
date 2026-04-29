@@ -6,11 +6,13 @@ public class DefaultParamsResponse extends BasicResponse{
     private int userId;
     private String fullName;
     private int userType;
-    public DefaultParamsResponse(boolean success, Integer errorCode, BasicUser basicUser){
+    private String entryCode;
+    public DefaultParamsResponse(boolean success, Integer errorCode, BasicUser basicUser, String entryCode){
         super(success, errorCode);
         this.userId = basicUser.getId();
         this.fullName = basicUser.getFullName();
         this.userType = basicUser.getUserType();
+        this.entryCode = entryCode;
     }
 
     public int getUserId() {
@@ -35,5 +37,13 @@ public class DefaultParamsResponse extends BasicResponse{
 
     public void setUserType(int userType) {
         this.userType = userType;
+    }
+
+    public String getEntryCode() {
+        return entryCode;
+    }
+
+    public void setEntryCode(String entryCode) {
+        this.entryCode = entryCode;
     }
 }

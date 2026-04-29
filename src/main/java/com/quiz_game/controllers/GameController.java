@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import static com.quiz_game.utils.Constants.*;
 import static com.quiz_game.utils.Errors.*;
 
 @RestController
@@ -63,6 +64,7 @@ public class GameController {
 
         int max = questionTemplate.getMaxNumber();
         // צריך לעבוד על זה:
+
         int num1 = random.nextInt(2, max);
         int num2 = random.nextInt(2, max);
 
@@ -95,7 +97,8 @@ public class GameController {
         newQuestion.setQuestion(newQuestionTemplate);
         newQuestion.setAnswer(answer);
         newQuestion.setCreationDate(new Date());
-
+        int score = pathChoice == 0 ? MEDIUM_Q_SCORE : pathChoice == 1 ? EASY_Q_SCORE : HARD_Q_SCORE;
+        newQuestion.setScore(score);
         persist.save(newQuestion);
 
         return new QuestionResponse(newQuestion);
@@ -125,17 +128,22 @@ public class GameController {
         }
 
         boolean rightAnswer = question.getAnswer() == answer;
+        //calculate score
+        int addedScore = question.getScore();
+        TrackEntity track = persist.getTrackByTrackId(trackId);
+        track.setScore(track.getScore()+addedScore);
+        persist.save(track);
         return new RightAnswerResponse(rightAnswer, question);
     }
 
 
     @RequestMapping("/set-track")
-    public BasicResponse setTrack(int trackId,int score, int path, int pathChance, int powerUp, int position) {
+    public BasicResponse setTrack(int trackId, int path, int pathChance, int powerUp, int position) {
         TrackEntity track = persist.getTrackByTrackId(trackId);
         if (track == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
-        track.setScore(score);
+
         track.setPath(path);
         track.setPathChance(pathChance);
         track.setPowerUp(powerUp);

@@ -69,12 +69,17 @@ public class PreGameController {
     @RequestMapping("/join-race")
     public BasicResponse joinRace(String token, String entryCode) {
         StudentEntity student = persist.getStudentByToken(token);
+        boolean isStudentInRace = false;
         if (student == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
-//        if (persist.isStudentInAnyNonFinishedRace(student)) {
-//            return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-//        }
+        if (persist.isStudentInAnyNonFinishedRace(student)) {
+            RaceEntity race = persist.getRaceByEntryCode(entryCode);
+            isStudentInRace = persist.isStudentInSpecificRace(student, race.getId());
+            if(!isStudentInRace) {
+                return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
+            }
+        }
         RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
         if (race == null || entryCode.trim().isEmpty()) {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
@@ -83,14 +88,16 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_RACE_IS_FULL);
         }
         if (race.getStatus() == RACE_STATUS_LOBBY) {
-            TrackEntity track = new TrackEntity();
-            track.setRace(race);
-            track.setStudent(student);
-            persist.save(track);
-            race.setCapacity(race.getCapacity() + 1);
-            persist.save(race);
+            if(!isStudentInRace) {
+                TrackEntity track = new TrackEntity();
+                track.setRace(race);
+                track.setStudent(student);
+                persist.save(track);
+                race.setCapacity(race.getCapacity() + 1);
+                persist.save(race);
 //          sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
-            sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
+                sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
+            }
 
             //HAS TO SUBSCRIBE
             return new JoinRaceResponse(true, null, race.getId());

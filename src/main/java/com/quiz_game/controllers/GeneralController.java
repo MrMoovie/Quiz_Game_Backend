@@ -55,7 +55,6 @@ public class GeneralController {
             return new BasicResponse(false, 1);
         }
     }
-
     // >> NOT RELEVANT TO OUR PROJECT << //
 //    @RequestMapping ("/login")
 //    public BasicResponse getUser (String username, String password, int selectedType) {
@@ -182,10 +181,17 @@ public class GeneralController {
 //    }
 //
     @RequestMapping("/get-default-params")
-    public BasicResponse getDefaultParams (String token) {
+    public BasicResponse getDefaultParams (String token, Integer raceId) {
+        System.out.println(raceId);
         BasicUser basicUser = persist.getUserByToken(token);
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+
+        String entryCode = null;
+        if(race!=null){
+            entryCode = race.getEntryCode();
+        }
         if (basicUser != null) {
-            return new DefaultParamsResponse(true, null, basicUser);
+            return new DefaultParamsResponse(true, null, basicUser, entryCode);
         } else {
             return new BasicResponse(false, ERROR_WRONG_CREDENTIALS);
         }

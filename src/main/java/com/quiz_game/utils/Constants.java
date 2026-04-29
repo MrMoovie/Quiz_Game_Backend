@@ -26,6 +26,10 @@ public class Constants {
     public static final int RACE_STATUS_FINISHED = 2; // opened
 
 
+    public static final int EASY_Q_SCORE = 5;
+    public static final int MEDIUM_Q_SCORE = 10;
+    public static final int HARD_Q_SCORE = 20;
+
 
 
 }

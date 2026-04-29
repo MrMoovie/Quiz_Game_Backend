@@ -232,6 +232,17 @@ public class Persist {
 
         return count != null && count > 0;
     }
+    public boolean isStudentInSpecificRace(StudentEntity studentEntity, int raceId) {
+        Long count = this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT count(t) FROM TrackEntity t " +
+                        "WHERE t.race.id = :raceId " +
+                        "AND t.student.id = :studentId", Long.class)
+                .setParameter("raceId", raceId)
+                .setParameter("studentId", studentEntity.getId())
+                .uniqueResult();
+
+        return count != null && count > 0;
+    }
 
     public QuestionTemplateEntity getQuestionTemplateByQuestionId(int questionId) {
         return this.sessionFactory.getCurrentSession()
