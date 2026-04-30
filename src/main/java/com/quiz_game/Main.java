@@ -42,4 +42,6 @@ public class Main {
         add 'in progress' join for student when the game has already started
         make 'create race' real time for teacher
         display entry code [*]
+
+        disable the button if the input is empty
  */

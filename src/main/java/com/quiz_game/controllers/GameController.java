@@ -3,6 +3,7 @@ package com.quiz_game.controllers;
 import com.quiz_game.entities.*;
 import com.quiz_game.responses.*;
 import com.quiz_game.service.Persist;
+import com.quiz_game.service.SseManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,8 @@ import static com.quiz_game.utils.Errors.*;
 public class GameController {
     @Autowired
     private Persist persist;
+    @Autowired
+    private SseManager sseManager;
 
     @PostConstruct
     public void init() {
@@ -85,6 +88,7 @@ public class GameController {
             default -> 0;
         };
 
+
         QuestionEntity newQuestion = new QuestionEntity();
 
         //   if (!persist.isStudentInRace(studentEntity, trackId)) {
@@ -96,6 +100,7 @@ public class GameController {
         newQuestion.setTrack(track);
         newQuestion.setQuestion(newQuestionTemplate);
         newQuestion.setAnswer(answer);
+
         newQuestion.setCreationDate(new Date());
         int score = pathChoice == 0 ? MEDIUM_Q_SCORE : pathChoice == 1 ? EASY_Q_SCORE : HARD_Q_SCORE;
         newQuestion.setScore(score);
@@ -128,11 +133,15 @@ public class GameController {
         }
 
         boolean rightAnswer = question.getAnswer() == answer;
+        System.out.println(rightAnswer);
         //calculate score
-        int addedScore = question.getScore();
-        TrackEntity track = persist.getTrackByTrackId(trackId);
-        track.setScore(track.getScore()+addedScore);
-        persist.save(track);
+        if(rightAnswer) {
+            int addedScore = question.getScore();
+            TrackEntity track = persist.getTrackByTrackId(trackId);
+            track.setScore(track.getScore() + addedScore);
+            persist.save(track);
+            sseManager.scoreEvent(track.getRace().getId(), studentEntity.getId(), track.getScore(), track.getPosition());
+        }
         return new RightAnswerResponse(rightAnswer, question);
     }
 
@@ -149,6 +158,10 @@ public class GameController {
         track.setPowerUp(powerUp);
         track.setPosition(position);
         persist.save(track);
+
+        //[!]
+        sseManager.scoreEvent(track.getRace().getId(), track.getStudent().getId(), track.getScore(), track.getPosition());
+
         return new TrackResponse(track);
     }
 

@@ -184,11 +184,14 @@ public class GeneralController {
     public BasicResponse getDefaultParams (String token, Integer raceId) {
         System.out.println(raceId);
         BasicUser basicUser = persist.getUserByToken(token);
-        RaceEntity race = persist.getRaceByRaceId(raceId);
 
         String entryCode = null;
-        if(race!=null){
-            entryCode = race.getEntryCode();
+        if(raceId!=null) {
+            RaceEntity race = persist.getRaceByRaceId(raceId);
+
+            if(race!=null){
+                entryCode = race.getEntryCode();
+            }
         }
         if (basicUser != null) {
             return new DefaultParamsResponse(true, null, basicUser, entryCode);

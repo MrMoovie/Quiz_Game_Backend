@@ -10,8 +10,10 @@ import com.quiz_game.service.Persist;
 import com.quiz_game.service.SseManager;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PostConstruct;
 
@@ -30,6 +32,12 @@ public class PreGameController {
 
     @PostConstruct
     public void init() {
+    }
+
+    @RequestMapping("/subscribe")
+    public SseEmitter subscribe(String token, Integer raceId) {
+        // We just pass the request down to your service layer
+        return sseManager.subscribe(token, raceId);
     }
 
     @RequestMapping("lobby-info")
@@ -69,43 +77,52 @@ public class PreGameController {
     @RequestMapping("/join-race")
     public BasicResponse joinRace(String token, String entryCode) {
         StudentEntity student = persist.getStudentByToken(token);
-        boolean isStudentInRace = false;
+
         if (student == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
-        if (persist.isStudentInAnyNonFinishedRace(student)) {
-            RaceEntity race = persist.getRaceByEntryCode(entryCode);
-            isStudentInRace = persist.isStudentInSpecificRace(student, race.getId());
-            if(!isStudentInRace) {
-                return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-            }
-        }
-        RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
-        if (race == null || entryCode.trim().isEmpty()) {
+
+        // 1. Validate the entryCode first so we don't get a NullPointerException
+        if (entryCode == null || entryCode.trim().isEmpty()) {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
-        if (race.getCapacity() > 8) { // MAX CAPACITY = 8
+
+        RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
+        if (race == null) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+
+        if (race.getCapacity() >= 8) { // Changed to >= 8 so the 9th person gets blocked
             return new BasicResponse(false, ERROR_RACE_IS_FULL);
         }
+
+        // 2. Check if the student is ALREADY in this specific race
+        boolean isStudentInThisRace = persist.isStudentInSpecificRace(student, race.getId());
+
+        // 3. THE CLEANUP: If they are joining a new race, but left an old one unfinished, delete the old tracks!
+        if (!isStudentInThisRace && persist.isStudentInAnyNonFinishedRace(student)) {
+            persist.removeUnfinishedTracksForStudent(student);
+        }
+
+        // 4. Put them in the new race!
         if (race.getStatus() == RACE_STATUS_LOBBY) {
-            if(!isStudentInRace) {
+            if (!isStudentInThisRace) {
                 TrackEntity track = new TrackEntity();
                 track.setRace(race);
                 track.setStudent(student);
                 persist.save(track);
+
                 race.setCapacity(race.getCapacity() + 1);
                 persist.save(race);
-//          sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
+
                 sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
             }
 
-            //HAS TO SUBSCRIBE
             return new JoinRaceResponse(true, null, race.getId());
         } else {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
     }
-
 
 
     @RequestMapping("/get-all-races")
@@ -127,6 +144,7 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
     }
+
     @RequestMapping("/get-race")
     public BasicResponse getRace(int raceId) {
         RaceEntity race = persist.getRaceByRaceId(raceId);

@@ -244,6 +244,43 @@ public class Persist {
         return count != null && count > 0;
     }
 
+    public void removeUnfinishedTracksForStudent(StudentEntity student) {
+        Session session = this.sessionFactory.getCurrentSession();
+
+        List<TrackEntity> activeTracks = session
+                .createQuery("SELECT t FROM TrackEntity t WHERE t.student = :student AND t.race.status != :finishedStatus", TrackEntity.class)
+                .setParameter("student", student)
+                .setParameter("finishedStatus", RACE_STATUS_FINISHED)
+                .getResultList();
+
+        for (TrackEntity oldTrack : activeTracks) {
+            // 1. Delete questions (HQL is perfect here because Track doesn't hold a list of questions in Java)
+            session.createQuery("DELETE FROM QuestionEntity q WHERE q.track.id = :trackId")
+                    .setParameter("trackId", oldTrack.getId())
+                    .executeUpdate();
+
+            // 2. Break the link to the Race so Hibernate doesn't resurrect it!
+            RaceEntity oldRace = oldTrack.getRace();
+            if (oldRace != null) {
+                if (oldRace.getTracks() != null) {
+                    oldRace.getTracks().remove(oldTrack); // Removes it from the Java memory list
+                }
+                oldRace.setCapacity(Math.max(0, oldRace.getCapacity() - 1));
+                session.saveOrUpdate(oldRace);
+            }
+
+            // 3. Break the link to the Student so Hibernate doesn't resurrect it!
+            if (student.getGameHistory() != null) {
+                student.getGameHistory().remove(oldTrack); // Removes it from the Java memory list
+            }
+
+            // 4. Now that the Java lists are completely clear, we safely delete the track object
+            session.remove(oldTrack);
+
+            System.out.println("Successfully destroyed abandoned track ID: " + oldTrack.getId());
+        }
+    }
+
     public QuestionTemplateEntity getQuestionTemplateByQuestionId(int questionId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM QuestionTemplateEntity q WHERE q.id = :questionId", QuestionTemplateEntity.class)

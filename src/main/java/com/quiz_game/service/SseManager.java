@@ -18,7 +18,7 @@ public class SseManager {
     // The map key is now Integer (raceId), mapping to an inner Map of String (token) -> SseEmitter
     private final Map<Integer, Map<String, SseEmitter>> raceSubscribers = new ConcurrentHashMap<>();
 
-    @GetMapping("/subscribe")
+
     public SseEmitter subscribe(@RequestParam String token, @RequestParam Integer raceId) {
 
         // 1. Get or create the room (Map of token -> SseEmitter)
@@ -80,6 +80,7 @@ public class SseManager {
             jsonObject.put("score", scoreEarned);
             jsonObject.put("position", newPosition);
 
+            System.out.println("score earned "+scoreEarned);
             sendEvent(sessions, "score-update", jsonObject.toString());
         }
     }

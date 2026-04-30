@@ -1,6 +1,7 @@
 package com.quiz_game.responses;
 
-public class JoinRaceResponse extends BasicResponse {
+public class
+JoinRaceResponse extends BasicResponse {
     private Integer raceId;
 
     public JoinRaceResponse() {
