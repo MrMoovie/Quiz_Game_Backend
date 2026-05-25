@@ -66,7 +66,9 @@ public class PreGameController {
             race.setCapacity(0);
             race.setStatus(RACE_STATUS_LOBBY);
             persist.save(race);
-            //HAS TO SUBSCRIBE
+
+            sseManager.broadcastNewRace();
+
             return new CreateRaceResponse(true, null, race.getId(), entryCode);
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);

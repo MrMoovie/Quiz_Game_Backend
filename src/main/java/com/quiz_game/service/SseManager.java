@@ -56,6 +56,20 @@ public class SseManager {
         }
     }
 
+    // Broadcast to EVERYONE sitting in the main student/teacher menu
+    public void broadcastNewRace() {
+        int globalMenuId = 0; // Using 0 as the reserved ID for the main menus
+        Map<String, SseEmitter> sessions = raceSubscribers.get(globalMenuId);
+
+        if (sessions != null && !sessions.isEmpty()) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("event", "RACE_CREATED");
+
+            sendEvent(sessions, "race-created", jsonObject.toString());
+            System.out.println("[SSE] Broadcasted new race to global menu.");
+        }
+    }
+
     // Broadcast to EVERYONE in the race lobby
     public void studentHasJoined(int raceId, String studentName, int trackId) {
         Map<String, SseEmitter> sessions = raceSubscribers.get(raceId);
