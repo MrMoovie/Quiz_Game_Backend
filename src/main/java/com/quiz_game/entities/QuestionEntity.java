@@ -4,7 +4,7 @@ public class QuestionEntity extends BaseEntity {
     private TrackEntity track;
     private String question;
     private int answer;
-
+    private boolean answerRight;
     private int score;
 
     public int getAnswer() {
@@ -30,7 +30,13 @@ public class QuestionEntity extends BaseEntity {
     public void setTrack(TrackEntity track) {
         this.track = track;
     }
+    public boolean isAnswerRight() {
+        return answerRight;
+    }
 
+    public void setAnswerRight(boolean answerRight) {
+        this.answerRight = answerRight;
+    }
     public int getScore() {
         return score;
     }

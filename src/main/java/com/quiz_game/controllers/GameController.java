@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 
-import java.util.Date;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 import static com.quiz_game.utils.Constants.*;
 import static com.quiz_game.utils.Errors.*;
@@ -33,12 +33,61 @@ public class GameController {
         if (teacherEntity == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED); //ERROR_WRONG_CREDENTIALS
         }
-        if (!persist.isTeacherHostingRace(teacherEntity, raceId)) { // Can do only getRaces, and check for null
+        if (!persist.isTeacherHostingRace(teacherEntity, raceId)) { // Can do only getRaces and check for null
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
         List<StudentEntity> studenList = persist.getAllStudentsByRaceID(raceId);
         return new RaceStudentsResponse(true, null, studenList);
     }
+
+    private final Map<String, Map<String,List<Point>>> listOfPoints = getMap();
+
+    private Map<String, Map<String, List<Point>>> getMap() {
+        Map<String, Map<String, List<Point>>> numMap = new HashMap<>();
+
+        // פלוס
+        numMap.put("+", createDifficultyMap(
+                List.of(new Point(1,1)), // Easy
+                List.of(new Point(2,2)), // Medium
+                List.of(new Point(3,3))  // Hard
+        ));
+
+        // מינוס
+        numMap.put("-", createDifficultyMap(
+                List.of(new Point(1,1)), // Easy
+                List.of(new Point(2,2)), // Medium
+                List.of(new Point(3,3))  // Hard
+        ));
+
+        // חילוק
+        numMap.put("/", createDifficultyMap(
+                List.of(new Point(1,1)), // Easy
+                List.of(new Point(2,2)), // Medium
+                List.of(new Point(3,3))  // Hard
+        ));
+
+        // כפל
+        numMap.put("*", createDifficultyMap(
+                List.of(new Point(1,1)), // Easy
+                List.of(new Point(2,2)), // Medium
+                List.of(new Point(3,3))  // Hard
+        ));
+
+        return numMap;
+    }
+
+    // פונקציית עזר שמקבלת את רשימות הנקודות ומארגנת אותן בתוך ה-Map הפנימי
+    private Map<String, List<Point>> createDifficultyMap(List<Point> easyList, List<Point> medList, List<Point> hardList) {
+        Map<String, List<Point>> difficultyMap = new HashMap<>();
+
+        // עטיפה ב-ArrayList כדי שהרשימות לא יהיו חסומות לשינויים (Mutable)
+        difficultyMap.put("Easy", new ArrayList<>(easyList));
+        difficultyMap.put("Medium", new ArrayList<>(medList));
+        difficultyMap.put("Hard", new ArrayList<>(hardList));
+
+        return difficultyMap;
+    }
+
 
     @RequestMapping("/getNewQuestion")
     public BasicResponse getNewQuestion(String studentToken, int trackId, int pathChoice) {
@@ -49,7 +98,7 @@ public class GameController {
         if (!persist.isStudentInRace(studentEntity, trackId)) {
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_STUDENT);
         }
-        if (pathChoice < 0 || pathChoice > 2) { // pathChoice = 0 (normal)  || 1 (dirt road) (easy) || 2 (highway) (hard)
+        if (pathChoice < 0 || pathChoice > 2) { // pathChoice = 0 (normal) || 1 (dirt road) (easy) || 2 (highway) (hard)
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
 
@@ -65,11 +114,11 @@ public class GameController {
 
         Random random = new Random();
 
-        int max = questionTemplate.getMaxNumber();
-        // צריך לעבוד על זה:
-
-        int num1 = random.nextInt(2, max);
-        int num2 = random.nextInt(2, max);
+     //   int max = questionTemplate.getMaxNumber();
+        List<Point> points = listOfPoints.get(action.getActionOperation()).get(level);
+        int index = random.nextInt(points.size());
+        int num1 = points.get(index).x;
+        int num2 = points.get(index).y;
 
 
         String newQuestionTemplate = questionTemplate.getTemplate()
@@ -90,11 +139,6 @@ public class GameController {
 
 
         QuestionEntity newQuestion = new QuestionEntity();
-
-        //   if (!persist.isStudentInRace(studentEntity, trackId)) {
-        //        return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_STUDENT);
-        //   }
-        // אם הגענו לפה **חייב להיות track** ולכן הוא לא null ואין צורך לבדוק אם הוא null
         TrackEntity track = persist.getTrackByTrackId(trackId);
 
         newQuestion.setTrack(track);
@@ -133,21 +177,29 @@ public class GameController {
         }
 
         boolean rightAnswer = question.getAnswer() == answer;
-        System.out.println(rightAnswer);
+       // System.out.println(rightAnswer);
         //calculate score
         if(rightAnswer) {
+            question.setAnswerRight(true);
+            persist.save(question);
             int addedScore = question.getScore();
             TrackEntity track = persist.getTrackByTrackId(trackId);
             track.setScore(track.getScore() + addedScore);
+            track.setCurrentQuestionId(question.getId());
             persist.save(track);
-            sseManager.scoreEvent(track.getRace().getId(), studentEntity.getId(), track.getScore(), track.getPosition());
+            if (track.getScore() == 1000){
+                RaceEntity race = track.getRace();
+                race.setStatus(RACE_STATUS_FINISHED);
+                persist.save(race);
+            }
+            sseManager.scoreEvent(track.getRace().getId(), studentEntity.getId(), track.getScore(), track.getPosition(), track.getCurrentQuestionId());
         }
-        return new RightAnswerResponse(rightAnswer, question);
+        return new QuestionResponse(question);
     }
 
 
     @RequestMapping("/set-track")
-    public BasicResponse setTrack(int trackId, int path, int pathChance, int powerUp, int position) {
+    public BasicResponse setTrack(int trackId, int path, int pathChance, int powerUp) {
         TrackEntity track = persist.getTrackByTrackId(trackId);
         if (track == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
@@ -156,11 +208,10 @@ public class GameController {
         track.setPath(path);
         track.setPathChance(pathChance);
         track.setPowerUp(powerUp);
-        track.setPosition(position);
         persist.save(track);
 
         //[!]
-        sseManager.scoreEvent(track.getRace().getId(), track.getStudent().getId(), track.getScore(), track.getPosition());
+       // sseManager.scoreEvent(track.getRace().getId(), track.getStudent().getId(), track.getScore(), track.getPosition());
 
         return new TrackResponse(track);
     }
@@ -180,7 +231,7 @@ public class GameController {
         if (track == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
-        // track entity cant exist without race, so race cant be null.
+        // track entity can't exist without race, so race can't be null.
         RaceEntity race = persist.getRaceByRaceId(track.getRace().getId());
         race.setStatus(status);
         persist.save(race);

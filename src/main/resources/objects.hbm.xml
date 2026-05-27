@@ -191,6 +191,7 @@
             <column name="question"/>
         </property>
         <property name="answer" type="int"/>
+        <property name="answerRight" type="boolean"/>
         <property name="score" type="int"/>
 
         <property name="creationDate" type="java.util.Date">
