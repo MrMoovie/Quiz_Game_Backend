@@ -232,6 +232,54 @@ public class Persist {
 
         return count != null && count > 0;
     }
+    public boolean isStudentInSpecificRace(StudentEntity studentEntity, int raceId) {
+        Long count = this.sessionFactory.getCurrentSession()
+                .createQuery("SELECT count(t) FROM TrackEntity t " +
+                        "WHERE t.race.id = :raceId " +
+                        "AND t.student.id = :studentId", Long.class)
+                .setParameter("raceId", raceId)
+                .setParameter("studentId", studentEntity.getId())
+                .uniqueResult();
+
+        return count != null && count > 0;
+    }
+
+    public void removeUnfinishedTracksForStudent(StudentEntity student) {
+        Session session = this.sessionFactory.getCurrentSession();
+
+        List<TrackEntity> activeTracks = session
+                .createQuery("SELECT t FROM TrackEntity t WHERE t.student = :student AND t.race.status != :finishedStatus", TrackEntity.class)
+                .setParameter("student", student)
+                .setParameter("finishedStatus", RACE_STATUS_FINISHED)
+                .getResultList();
+
+        for (TrackEntity oldTrack : activeTracks) {
+            // 1. Delete questions (HQL is perfect here because Track doesn't hold a list of questions in Java)
+            session.createQuery("DELETE FROM QuestionEntity q WHERE q.track.id = :trackId")
+                    .setParameter("trackId", oldTrack.getId())
+                    .executeUpdate();
+
+            // 2. Break the link to the Race so Hibernate doesn't resurrect it!
+            RaceEntity oldRace = oldTrack.getRace();
+            if (oldRace != null) {
+                if (oldRace.getTracks() != null) {
+                    oldRace.getTracks().remove(oldTrack); // Removes it from the Java memory list
+                }
+                oldRace.setCapacity(Math.max(0, oldRace.getCapacity() - 1));
+                session.saveOrUpdate(oldRace);
+            }
+
+            // 3. Break the link to the Student so Hibernate doesn't resurrect it!
+            if (student.getGameHistory() != null) {
+                student.getGameHistory().remove(oldTrack); // Removes it from the Java memory list
+            }
+
+            // 4. Now that the Java lists are completely clear, we safely delete the track object
+            session.remove(oldTrack);
+
+            System.out.println("Successfully destroyed abandoned track ID: " + oldTrack.getId());
+        }
+    }
 
     public QuestionTemplateEntity getQuestionTemplateByQuestionId(int questionId) {
         return this.sessionFactory.getCurrentSession()
@@ -305,6 +353,13 @@ public class Persist {
     public List<RaceEntity> getAllRaces() {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM RaceEntity", RaceEntity.class)
+                .list();
+    }
+
+    public List<RaceEntity> getRacesByTeacherId(int teacherId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM RaceEntity r WHERE r.teacher.id = :teacherId", RaceEntity.class)
+                .setParameter("teacherId", teacherId)
                 .list();
     }
 

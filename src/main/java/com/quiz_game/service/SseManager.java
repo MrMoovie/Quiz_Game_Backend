@@ -18,7 +18,7 @@ public class SseManager {
     // The map key is now Integer (raceId), mapping to an inner Map of String (token) -> SseEmitter
     private final Map<Integer, Map<String, SseEmitter>> raceSubscribers = new ConcurrentHashMap<>();
 
-    @GetMapping("/subscribe")
+
     public SseEmitter subscribe(@RequestParam String token, @RequestParam Integer raceId) {
 
         // 1. Get or create the room (Map of token -> SseEmitter)
@@ -26,7 +26,7 @@ public class SseManager {
 
         // 2. Check if an emitter already exists for this token in this race
         if (roomSubscribers.containsKey(token)) {
-            System.out.println("[SSE] Returning existing emitter for token in Race ID: " + raceId);
+           // System.out.println("[SSE] Returning existing emitter for token in Race ID: " + raceId);
             return roomSubscribers.get(token);
         }
 
@@ -41,7 +41,7 @@ public class SseManager {
         // Store the new emitter mapped to the token
         roomSubscribers.put(token, sseEmitter);
 
-        System.out.println("[SSE] New user subscribed to Race ID: " + raceId);
+       // System.out.println("[SSE] New user subscribed to Race ID: " + raceId);
 
         return sseEmitter;
     }
@@ -56,6 +56,20 @@ public class SseManager {
         }
     }
 
+    // Broadcast to EVERYONE sitting in the main student/teacher menu
+    public void broadcastNewRace() {
+        int globalMenuId = 0; // Using 0 as the reserved ID for the main menus
+        Map<String, SseEmitter> sessions = raceSubscribers.get(globalMenuId);
+
+        if (sessions != null && !sessions.isEmpty()) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("event", "RACE_CREATED");
+
+            sendEvent(sessions, "race-created", jsonObject.toString());
+          //  System.out.println("[SSE] Broadcasted new race to global menu.");
+        }
+    }
+
     // Broadcast to EVERYONE in the race lobby
     public void studentHasJoined(int raceId, String studentName, int trackId) {
         Map<String, SseEmitter> sessions = raceSubscribers.get(raceId);
@@ -66,12 +80,12 @@ public class SseManager {
             json.put("trackId", trackId);
 
             sendEvent(sessions, "lobby-update", json.toString());
-            System.out.println("[SSE] Broadcasted student join to Race ID: " + raceId);
+          //  System.out.println("[SSE] Broadcasted student join to Race ID: " + raceId);
         }
     }
 
     // Broadcast score updates to EVERYONE in the game
-    public void scoreEvent(int raceId, int studentId, int scoreEarned, int newPosition) {
+    public void scoreEvent(int raceId, int studentId, int scoreEarned, int newPosition, int currentQuestionId) {
         Map<String, SseEmitter> sessions = raceSubscribers.get(raceId);
         if (sessions != null && !sessions.isEmpty()) {
             JSONObject jsonObject = new JSONObject();
@@ -79,7 +93,9 @@ public class SseManager {
             jsonObject.put("id", studentId);
             jsonObject.put("score", scoreEarned);
             jsonObject.put("position", newPosition);
+            jsonObject.put("currentQuestionId", currentQuestionId);
 
+           // System.out.println("score earned "+scoreEarned);
             sendEvent(sessions, "score-update", jsonObject.toString());
         }
     }
@@ -94,7 +110,7 @@ public class SseManager {
             jsonObject.put("raceId", raceId);
 
             sendEvent(sessions, "game-started", jsonObject.toString());
-            System.out.println("[SSE] Broadcasted game start to Race ID: " + raceId);
+        //    System.out.println("[SSE] Broadcasted game start to Race ID: " + raceId);
         }
     }
 

@@ -10,8 +10,10 @@ import com.quiz_game.service.Persist;
 import com.quiz_game.service.SseManager;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PostConstruct;
 
@@ -32,18 +34,25 @@ public class PreGameController {
     public void init() {
     }
 
+    @RequestMapping("/subscribe")
+    public SseEmitter subscribe(String token, Integer raceId) {
+        // We just pass the request down to your service layer
+        return sseManager.subscribe(token, raceId);
+    }
+
     @RequestMapping("lobby-info")
-    public BasicResponse getLobbyInfo(Integer raceId, String token){
+    public BasicResponse getLobbyInfo(Integer raceId, String token) {
         StudentEntity student = persist.getStudentByToken(token);
         TeacherEntity teacher = persist.getTeacherByToken(token);
-        if(student==null&&teacher==null){
+        if (student == null && teacher == null) {
             return new BasicResponse(false, ERROR_WRONG_CREDENTIALS);
         }
         RaceEntity race = persist.getRaceByRaceId(raceId);
-        if(race==null){
+        if (race == null) {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
-        return new LobbyInfoResponse(true, null, race.getTeacher().getFullName(), persist.getAllStudentsByRaceID(race.getId()));
+        List<StudentEntity> studentsInRace = persist.getAllStudentsByRaceID(race.getId());
+        return new LobbyInfoResponse(true, null, race.getTeacher().getFullName(), studentsInRace);
     }
 
     @RequestMapping("/create-race")
@@ -54,10 +63,12 @@ public class PreGameController {
             RaceEntity race = new RaceEntity();
             race.setTeacher(teacher);
             race.setEntryCode(entryCode);
-            race.setMaxCapacity(0);
-            race.setStatus(0);
+            race.setCapacity(0);
+            race.setStatus(RACE_STATUS_LOBBY);
             persist.save(race);
-            //HAS TO SUBSCRIBE
+
+            sseManager.broadcastNewRace();
+
             return new CreateRaceResponse(true, null, race.getId(), entryCode);
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
@@ -68,33 +79,50 @@ public class PreGameController {
     @RequestMapping("/join-race")
     public BasicResponse joinRace(String token, String entryCode) {
         StudentEntity student = persist.getStudentByToken(token);
-        if (student != null) {
-            boolean raceCheck = persist.isStudentInAnyNonFinishedRace(student);
-         //   if (!raceCheck) {
-                if (entryCode != null && !entryCode.trim().isEmpty()) {
-                    RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
-                    if (race != null && race.getStatus() == RACE_STATUS_LOBBY) {
-                        TrackEntity track = new TrackEntity();
-                        track.setRace(race);
-                        track.setStudent(student);
-                        persist.save(track);
 
-//                        sseManager.studentHasJoined(race.getTeacher().getToken(), student.getFullName(), track.getId());
-                        sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
-
-                        //HAS TO SUBSCRIBE
-                        return new JoinRaceResponse(true, null, race.getId());
-                    } else {
-                        return new BasicResponse(false, ERROR_MISSING_VALUES);
-                    }
-                } else {
-                    return new BasicResponse(false, ERROR_MISSING_VALUES);
-                }
-//            } else {
-//                return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-//            }
-        } else {
+        if (student == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+
+        // 1. Validate the entryCode first so we don't get a NullPointerException
+        if (entryCode == null || entryCode.trim().isEmpty()) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+
+        RaceEntity race = persist.getRaceByEntryCode(entryCode.trim());
+        if (race == null) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+
+        if (race.getCapacity() >= 8) { // Changed to >= 8 so the 9th person gets blocked
+            return new BasicResponse(false, ERROR_RACE_IS_FULL);
+        }
+
+        // 2. Check if the student is ALREADY in this specific race
+        boolean isStudentInThisRace = persist.isStudentInSpecificRace(student, race.getId());
+
+        // 3. THE CLEANUP: If they are joining a new race, but left an old one unfinished, delete the old tracks!
+        if (!isStudentInThisRace && persist.isStudentInAnyNonFinishedRace(student)) {
+            persist.removeUnfinishedTracksForStudent(student);
+        }
+
+        // 4. Put them in the new race!
+        if (race.getStatus() == RACE_STATUS_LOBBY) {
+            if (!isStudentInThisRace) {
+                TrackEntity track = new TrackEntity();
+                track.setRace(race);
+                track.setStudent(student);
+                persist.save(track);
+
+                race.setCapacity(race.getCapacity() + 1);
+                persist.save(race);
+
+                sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
+            }
+
+            return new JoinRaceResponse(true, null, race.getId());
+        } else {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
     }
 
@@ -109,33 +137,51 @@ public class PreGameController {
         }
     }
 
+    @RequestMapping("/get-all-teacher-races")
+    public BasicResponse getAllTeacherRaces(String token) {
+        TeacherEntity teacher = persist.getTeacherByToken(token);
+        if (teacher != null) {
+            return new RacesResponse(true, null, persist.getRacesByTeacherId(teacher.getId()));
+        } else {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+    }
+
+    @RequestMapping("/get-race")
+    public BasicResponse getRace(int raceId) {
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+        if (race == null) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+        return new RaceResponse(race);
+    }
+
     @RequestMapping("/start-race")
     public BasicResponse startRace(String token, int raceId) {
         TeacherEntity teacher = persist.getTeacherByToken(token);
-        if (teacher != null) {
-            RaceEntity race = persist.getRaceByRaceId(raceId);
-            if (persist.isTeacherHostingRace(teacher, raceId)) {
-                if (race.getStatus() == RACE_STATUS_LOBBY) {
-                   // if (!persist.isAnyRaceOpenForTeacher(teacher)) {
-                        race.setStatus(RACE_STATUS_STARTED);
-                        persist.save(race);
-
-//                        List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
-//                        sseManager.gameStarted(studentTokens, race.getId());
-                        sseManager.gameStarted( race.getId());
-
-                        return new BasicResponse(true, null);
-//                    } else {
-//                        return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-//                    }
-                } else {
-                    return new BasicResponse(false, ERROR_RACE_CANT_BE_STARTED);
-                }
-            } else {
-                return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
-            }
-        } else {
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+        if (teacher == null || race == null) {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+        if (!persist.isTeacherHostingRace(teacher, raceId)) {
+            return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
+        }
+//        if (persist.isAnyRaceOpenForTeacher(teacher)) {
+//            return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
+//        }
+        if (race.getStatus() == RACE_STATUS_LOBBY) {
+
+            race.setStatus(RACE_STATUS_STARTED);
+            persist.save(race);
+
+//          List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
+//          sseManager.gameStarted(studentTokens, race.getId());
+            sseManager.gameStarted(race.getId());
+
+            return new BasicResponse(true, null);
+
+        } else {
+            return new BasicResponse(false, ERROR_RACE_CANT_BE_STARTED);
         }
     }
 }

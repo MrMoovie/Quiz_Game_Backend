@@ -95,8 +95,8 @@
         <!--        </property>-->
 
         <property name="entryCode" type="string" column="entry_code"/>
-        <property name="maxCapacity" type="int">
-            <column name="maxCapacity" default="8"/>
+        <property name="capacity" type="int">
+            <column name="capacity" default="0"/>
         </property>
         <property name="status" type="int">
             <column name="status" default="0"/>
@@ -191,6 +191,8 @@
             <column name="question"/>
         </property>
         <property name="answer" type="int"/>
+        <property name="answerRight" type="boolean"/>
+        <property name="score" type="int"/>
 
         <property name="creationDate" type="java.util.Date">
             <column name="time_stamp"/>

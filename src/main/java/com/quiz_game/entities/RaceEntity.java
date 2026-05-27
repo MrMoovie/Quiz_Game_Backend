@@ -9,7 +9,7 @@ public class RaceEntity extends BaseEntity{
     @JsonIgnore // infinite loop
     private TeacherEntity teacher;
     private String entryCode;
-    private int maxCapacity;
+    private int capacity;
     private int status;
     private List<TrackEntity> tracks = new ArrayList<>();
     // 0-LOBBY 1-RUNNING 2-FINISHED
@@ -30,14 +30,6 @@ public class RaceEntity extends BaseEntity{
         this.entryCode = entryCode;
     }
 
-    public int getMaxCapacity() {
-        return maxCapacity;
-    }
-
-    public void setMaxCapacity(int maxCapacity) {
-        this.maxCapacity = maxCapacity;
-    }
-
     public int getStatus() {
         return status;
     }
@@ -54,4 +46,11 @@ public class RaceEntity extends BaseEntity{
     }
 
 
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
 }
