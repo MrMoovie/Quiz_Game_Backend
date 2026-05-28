@@ -1,21 +1,17 @@
 package com.quiz_game.controllers;
 
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import com.quiz_game.entities.*;
 import com.quiz_game.responses.*;
 import com.quiz_game.service.Persist;
 import com.quiz_game.service.SseManager;
-import com.quiz_game.utils.Constants;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PostConstruct;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.quiz_game.utils.Constants.*;
@@ -51,6 +47,9 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
         List<StudentEntity> studentsInRace = persist.getAllStudentsByRaceID(race.getId());
+        for(StudentEntity studentEntity : studentsInRace){
+            studentEntity.setToken("-1");
+        }
         return new LobbyInfoResponse(true, null, race.getTeacher().getFullName(), studentsInRace);
     }
 
@@ -93,8 +92,7 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
 
-        if (race.getCapacity() >= 8) { // Changed to >= 8 so the 9th person gets blocked
-            race.setStatus(RACE_STATUS_STARTED);
+        if (race.getCapacity() > 8) { // the 9th person gets blocked.
             return new BasicResponse(false, ERROR_RACE_IS_FULL);
         }
 
@@ -119,7 +117,14 @@ public class PreGameController {
 
                 sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
             }
-
+            if (race.getCapacity() == 8) {
+                if (race.getStatus() != RACE_STATUS_STARTED) {
+                    race.setStatus(RACE_STATUS_STARTED);
+                    persist.save(race);
+                    // game will automatically start when the race is full:
+                    sseManager.gameStarted(race.getId());
+                }
+            }
             return new JoinRaceResponse(true, null, race.getId());
         } else {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
