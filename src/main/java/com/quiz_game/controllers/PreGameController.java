@@ -131,7 +131,7 @@ public class PreGameController {
     public BasicResponse getAllRaces(String token) {
         StudentEntity student = persist.getStudentByToken(token);
         if (student != null) {
-            return new RacesResponse(true, null, persist.getAllRaces());
+            return new RacesResponse(true, persist.getAllRaces());
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
@@ -141,7 +141,7 @@ public class PreGameController {
     public BasicResponse getAllTeacherRaces(String token) {
         TeacherEntity teacher = persist.getTeacherByToken(token);
         if (teacher != null) {
-            return new RacesResponse(true, null, persist.getRacesByTeacherId(teacher.getId()));
+            return new RacesForTeacherResponse(true, persist.getRacesByTeacherId(teacher.getId()));
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }

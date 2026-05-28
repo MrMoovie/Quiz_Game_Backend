@@ -1,26 +1,24 @@
 package com.quiz_game.responses;
 
+import com.quiz_game.entities.RaceDTO;
 import com.quiz_game.entities.RaceEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RacesResponse extends BasicResponse {
-    private List<RaceEntity> races;
+    private final List<RaceDTO> races = new ArrayList<>();
 
-    public RacesResponse() {
+    public RacesResponse(boolean success, List<RaceEntity> races) {
+        super(success, null);
+        for(RaceEntity race : races){
+            RaceDTO raceDTO = new RaceDTO(race.getTeacher(), race.getCapacity(), race.getStatus(), race.getTracks());
+            this.races.add(raceDTO);
+        }
     }
 
-    public RacesResponse(boolean success, Integer errorCode, List<RaceEntity> races) {
-        super(success, errorCode);
-        this.races = races;
-    }
-
-    public List<RaceEntity> getRaces() {
+    public List<RaceDTO> getRaces() {
         return races;
-    }
-
-    public void setRaces(List<RaceEntity> races) {
-        this.races = races;
     }
 }
 

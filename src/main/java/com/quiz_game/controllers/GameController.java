@@ -36,8 +36,15 @@ public class GameController {
         if (!persist.isTeacherHostingRace(teacherEntity, raceId)) { // Can do only getRaces and check for null
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
+
+        List<StudentDTO> response = new ArrayList<>();
         List<StudentEntity> studenList = persist.getAllStudentsByRaceID(raceId);
-        return new RaceStudentsResponse(true, null, studenList);
+        for(StudentEntity student : studenList) {
+            TrackEntity track = persist.getTrackByStudentToken((student.getToken()));
+            StudentDTO studentDTO = new StudentDTO(student.getId(),student.getFullName(),track.getScore(),track.getPath(),track.getPowerUp());
+            response.add(studentDTO);
+        }
+        return new RaceStudentsResponse(true, null, response);
     }
 
     private final Map<String, Map<String,List<Point>>> listOfPoints = getMap();
@@ -201,7 +208,6 @@ public class GameController {
 
         Random random = new Random();
 
-     //   int max = questionTemplate.getMaxNumber();
         List<Point> points = listOfPoints.get(action.getActionOperation()).get(level);
         int index = random.nextInt(points.size());
         int num1 = points.get(index).x;
@@ -274,7 +280,7 @@ public class GameController {
             track.setScore(track.getScore() + addedScore);
             track.setCurrentQuestionId(question.getId());
             persist.save(track);
-            if (track.getScore() == 1000){
+            if (track.getScore() == 100){
                 RaceEntity race = track.getRace();
                 race.setStatus(RACE_STATUS_FINISHED);
                 persist.save(race);
