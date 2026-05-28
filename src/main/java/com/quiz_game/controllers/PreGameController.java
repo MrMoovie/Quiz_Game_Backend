@@ -1,10 +1,7 @@
 package com.quiz_game.controllers;
 
 import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
-import com.quiz_game.entities.RaceEntity;
-import com.quiz_game.entities.StudentEntity;
-import com.quiz_game.entities.TeacherEntity;
-import com.quiz_game.entities.TrackEntity;
+import com.quiz_game.entities.*;
 import com.quiz_game.responses.*;
 import com.quiz_game.service.Persist;
 import com.quiz_game.service.SseManager;
@@ -18,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PostConstruct;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.quiz_game.utils.Constants.*;
@@ -133,7 +131,13 @@ public class PreGameController {
     public BasicResponse getAllRaces(String token) {
         StudentEntity student = persist.getStudentByToken(token);
         if (student != null) {
-            return new RacesResponse(true, persist.getAllRaces());
+            List<RaceEntity> races = persist.getAllRaces();
+            ArrayList<RaceDTO> racesDTO = new ArrayList<>();
+            for(RaceEntity race : races){
+                RaceDTO raceDTO = new RaceDTO(race.getTeacher(), race.getCapacity(), race.getStatus(), race.getTracks());
+                racesDTO.add(raceDTO);
+            }
+            return new RacesResponse(true, racesDTO);
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }

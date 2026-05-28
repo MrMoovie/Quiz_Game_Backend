@@ -20,4 +20,16 @@ public class RaceDTO extends BaseEntity{
         this.status = status;
         this.tracks = tracks;
     }
+    public TeacherEntity getTeacher() {
+        return teacher;
+    }
+    public int getCapacity() {
+        return capacity;
+    }
+    public int getStatus() {
+        return status;
+    }
+    public List<TrackEntity> getTracks() {
+        return tracks;
+    }
 }
