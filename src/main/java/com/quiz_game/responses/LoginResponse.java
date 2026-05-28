@@ -5,8 +5,7 @@ public class LoginResponse extends BasicResponse {
     private int id;
     private int userType;
 
-    public LoginResponse(boolean success, Integer errorCode, String token, int id,
-                         int userType) {
+    public LoginResponse(boolean success, Integer errorCode, String token, int id, int userType) {
         super(success, errorCode);
         this.token = token;
         this.id = id;

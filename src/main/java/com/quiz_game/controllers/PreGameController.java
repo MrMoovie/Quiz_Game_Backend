@@ -8,6 +8,7 @@ import com.quiz_game.entities.TrackEntity;
 import com.quiz_game.responses.*;
 import com.quiz_game.service.Persist;
 import com.quiz_game.service.SseManager;
+import com.quiz_game.utils.Constants;
 import com.quiz_game.utils.GeneralUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,6 +96,7 @@ public class PreGameController {
         }
 
         if (race.getCapacity() >= 8) { // Changed to >= 8 so the 9th person gets blocked
+            race.setStatus(RACE_STATUS_STARTED);
             return new BasicResponse(false, ERROR_RACE_IS_FULL);
         }
 
