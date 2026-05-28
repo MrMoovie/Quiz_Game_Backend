@@ -1,18 +1,18 @@
 package com.quiz_game.responses;
 
-import com.quiz_game.entities.RaceDTO;
+import com.quiz_game.entities.RaceEntity;
 
 import java.util.List;
 
 public class RacesResponse extends BasicResponse {
-    private final List<RaceDTO> races;
+    private final List<RaceEntity> races;
 
-    public RacesResponse(boolean success, List<RaceDTO> races) {
+    public RacesResponse(boolean success, List<RaceEntity> races) {
         super(success, null);
         this.races = races;
     }
 
-    public List<RaceDTO> getRaces() {
+    public List<RaceEntity> getRaces() {
         return races;
     }
 }

@@ -132,12 +132,10 @@ public class PreGameController {
         StudentEntity student = persist.getStudentByToken(token);
         if (student != null) {
             List<RaceEntity> races = persist.getAllRaces();
-            ArrayList<RaceDTO> racesDTO = new ArrayList<>();
             for(RaceEntity race : races){
-                RaceDTO raceDTO = new RaceDTO(race.getTeacher(), race.getCapacity(), race.getStatus(), race.getTracks());
-                racesDTO.add(raceDTO);
+                race.setEntryCode("-1");
             }
-            return new RacesResponse(true, racesDTO);
+            return new RacesResponse(true, races);
         } else {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
