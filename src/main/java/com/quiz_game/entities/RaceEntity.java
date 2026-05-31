@@ -10,9 +10,30 @@ public class RaceEntity extends BaseEntity{
     private TeacherEntity teacher;
     private String entryCode;
     private int capacity;
+
+    private int maxCapacity;
     private int status;
     private List<TrackEntity> tracks = new ArrayList<>();
+
+    private int goalScore;
     // 0-LOBBY 1-RUNNING 2-FINISHED
+
+
+    public int getGoalScore() {
+        return goalScore;
+    }
+
+    public void setGoalScore(int goalScore) {
+        this.goalScore = goalScore;
+    }
+
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
+
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
 
     public TeacherEntity getTeacher() {
         return teacher;

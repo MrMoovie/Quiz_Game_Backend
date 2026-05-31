@@ -114,6 +114,22 @@ public class SseManager {
         }
     }
 
+    // Broadcast game completion to EVERYONE in the room
+    public void gameFinished(int raceId, int winnerId, String winnerName) {
+        Map<String, SseEmitter> sessions = raceSubscribers.get(raceId);
+        if (sessions != null && !sessions.isEmpty()) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("event", "GAME_FINISHED");
+            jsonObject.put("isFinished", true);
+            jsonObject.put("raceId", raceId);
+            jsonObject.put("winnerId", winnerId);
+            jsonObject.put("winnerName", winnerName);
+
+            sendEvent(sessions, "game-finished", jsonObject.toString());
+            // System.out.println("[SSE] Broadcasted game finish to Race ID: " + raceId);
+        }
+    }
+
     // Helper method to iterate over the map's values and send the data
     private void sendEvent(Map<String, SseEmitter> sessions, String eventName, String data) {
         for (SseEmitter emitter : sessions.values()) {

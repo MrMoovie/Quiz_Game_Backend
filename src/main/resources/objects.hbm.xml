@@ -101,6 +101,12 @@
         <property name="status" type="int">
             <column name="status" default="0"/>
         </property>
+        <property name="goalScore" type="int">
+            <column name="goal_score" default="100"/>
+        </property>
+        <property name="maxCapacity" type="int">
+            <column name="max_capacity" default="8"/>
+        </property>
 
         <bag name="tracks" inverse="true" cascade="all">
             <key column="race_id"/>

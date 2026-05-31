@@ -27,7 +27,7 @@ public class GameController {
     public void init() {
     }
 
-    @RequestMapping("/get-all-students-in-race") //MAJOR SECURITY WARNING
+    @RequestMapping("/get-all-students-in-race")
     public BasicResponse getAllStudents(String teacherToken, int raceId) {
         TeacherEntity teacherEntity = persist.getTeacherByToken(teacherToken);
         if (teacherEntity == null) {
@@ -36,6 +36,10 @@ public class GameController {
         if (!persist.isTeacherHostingRace(teacherEntity, raceId)) { // Can do only getRaces and check for null
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+//        if (race == null) {
+//            return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
+//        }
 
         List<StudentDTO> response = new ArrayList<>();
         List<StudentEntity> studenList = persist.getAllStudentsByRaceID(raceId);
@@ -44,7 +48,8 @@ public class GameController {
             StudentDTO studentDTO = new StudentDTO(student.getId(),student.getFullName(),track.getScore(),track.getPath(),track.getPowerUp());
             response.add(studentDTO);
         }
-        return new RaceStudentsResponse(true, null, response);
+
+        return new RaceStudentsResponse(true, null, response, race.getGoalScore());
     }
 
     private final Map<String, Map<String,List<Point>>> listOfPoints = getMap();
@@ -280,10 +285,12 @@ public class GameController {
             track.setScore(track.getScore() + addedScore);
             track.setCurrentQuestionId(question.getId());
             persist.save(track);
-            if (track.getScore() == 100){
-                RaceEntity race = track.getRace();
+            RaceEntity race = track.getRace();
+            if (track.getScore() >= 10){ //CHANGE TO race.getGoalScore()
                 race.setStatus(RACE_STATUS_FINISHED);
                 persist.save(race);
+                //clear up (the tracks???) and the questions
+                sseManager.gameFinished(race.getId(), studentEntity.getId() ,studentEntity.getFullName());
             }
             sseManager.scoreEvent(track.getRace().getId(), studentEntity.getId(), track.getScore(), track.getPosition(), track.getCurrentQuestionId());
         }
@@ -329,6 +336,56 @@ public class GameController {
         race.setStatus(status);
         persist.save(race);
         return new RaceResponse(race);
+    }
+
+    @RequestMapping("/get-race-results")
+    public BasicResponse getRaceResults(String token, int raceId) {
+        // 1. Authenticate the user (could be a student OR a teacher)
+        BasicUser user = persist.getUserByToken(token);
+        if (user == null) {
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+        }
+
+        // 2. Fetch the target race
+        RaceEntity race = persist.getRaceByRaceId(raceId);
+        if (race == null) {
+            return new BasicResponse(false, ERROR_MISSING_VALUES);
+        }
+
+        // 3. Security validation based on user role type
+        if (user instanceof TeacherEntity) {
+            if (!persist.isTeacherHostingRace((TeacherEntity) user, raceId)) {
+                return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
+            }
+        } else if (user instanceof StudentEntity) {
+            if (!persist.isStudentInSpecificRace((StudentEntity) user, raceId)) {
+                return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_STUDENT);
+            }
+        }
+
+        // 4. Construct the DTO collection
+        List<StudentDTO> responseList = new ArrayList<>();
+        List<StudentEntity> studentList = persist.getAllStudentsByRaceID(raceId);
+
+        for (StudentEntity student : studentList) {
+            TrackEntity track = persist.getTrackByRaceIDAndStudentID(raceId, student.getId());
+            if (track != null) {
+                StudentDTO dto = new StudentDTO(
+                        student.getId(),
+                        student.getFullName(),
+                        track.getScore(),
+                        track.getPath(),
+                        track.getPowerUp()
+                );
+                responseList.add(dto);
+            }
+        }
+
+        // 5. Sort descending by score right here on the server
+        responseList.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+
+        // Reusing your existing RaceStudentsResponse model cleanly!
+        return new RaceStudentsResponse(true, null, responseList, race.getGoalScore());
     }
 
 

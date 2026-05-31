@@ -54,15 +54,16 @@ public class PreGameController {
     }
 
     @RequestMapping("/create-race")
-    public BasicResponse createRace(String token) {
+    public BasicResponse createRace(String token, int goalScore, int maxCapacity) {
         TeacherEntity teacher = persist.getTeacherByToken(token);
         if (teacher != null) {
             String entryCode = GeneralUtils.generateOtp();
             RaceEntity race = new RaceEntity();
             race.setTeacher(teacher);
             race.setEntryCode(entryCode);
-            race.setCapacity(0);
+            race.setMaxCapacity(maxCapacity);
             race.setStatus(RACE_STATUS_LOBBY);
+            race.setGoalScore(goalScore);
             persist.save(race);
 
             sseManager.broadcastNewRace();
@@ -92,7 +93,7 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
 
-        if (race.getCapacity() > 8) { // the 9th person gets blocked.
+        if (race.getCapacity() > race.getMaxCapacity()) {
             return new BasicResponse(false, ERROR_RACE_IS_FULL);
         }
 
@@ -117,15 +118,15 @@ public class PreGameController {
 
                 sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
             }
-            if (race.getCapacity() == 8) {
-                if (race.getStatus() != RACE_STATUS_STARTED) {
-                    race.setStatus(RACE_STATUS_STARTED);
-                    persist.save(race);
-                    // game will automatically start when the race is full:
-                    sseManager.gameStarted(race.getId());
-                }
-            }
-            return new JoinRaceResponse(true, null, race.getId());
+//            if (race.getCapacity() == race.getMaxCapacity()) {
+//                if (race.getStatus() != RACE_STATUS_STARTED) {
+//                    race.setStatus(RACE_STATUS_STARTED);
+//                    persist.save(race);
+//                    // game will automatically start when the race is full:
+//                    sseManager.gameStarted(race.getId());
+//                }
+//            }
+            return new JoinRaceResponse(true, null, race.getId(), race.getGoalScore());
         } else {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }

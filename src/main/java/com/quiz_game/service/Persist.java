@@ -113,6 +113,7 @@ public class Persist {
                 .setParameter("password", password)
                 .uniqueResult();
     }
+
     public TeacherEntity getTeacherByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM TeacherEntity  " +
@@ -144,6 +145,7 @@ public class Persist {
                 .createQuery("FROM PostEntity", PostEntity.class)
                 .list();
     }
+
     public List<CategoryEntity> getAllCategories() {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM CategoryEntity", CategoryEntity.class)
@@ -157,6 +159,7 @@ public class Persist {
                 .setParameter("id", id)
                 .uniqueResult();
     }
+
     public CategoryEntity getCategoryByCategoryId(int id) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM CategoryEntity " +
@@ -172,6 +175,7 @@ public class Persist {
                 .setParameter("token", token)
                 .uniqueResult();
     }
+
     public List<StudentEntity> getAllStudentsByRaceID(int raceId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("SELECT r.student FROM TrackEntity r " +
@@ -232,6 +236,7 @@ public class Persist {
 
         return count != null && count > 0;
     }
+
     public boolean isStudentInSpecificRace(StudentEntity studentEntity, int raceId) {
         Long count = this.sessionFactory.getCurrentSession()
                 .createQuery("SELECT count(t) FROM TrackEntity t " +
@@ -301,19 +306,41 @@ public class Persist {
                 .setParameter("trackId", trackId)
                 .uniqueResult();
     }
+
+    //    public TrackEntity getTrackByStudentToken(String studentToken) {
+//        return this.sessionFactory.getCurrentSession()
+//                .createQuery(
+//                        "SELECT t FROM TrackEntity t " +
+//                                "JOIN t.student s " + // מניח שיש קשר ב-Entity בין Track ל-Student
+//                                "WHERE s.token = :token", TrackEntity.class)
+//                .setParameter("token", studentToken)
+//                .uniqueResult();
+//    }
     public TrackEntity getTrackByStudentToken(String studentToken) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery(
                         "SELECT t FROM TrackEntity t " +
-                                "JOIN t.student s " + // מניח שיש קשר ב-Entity בין Track ל-Student
-                                "WHERE s.token = :token", TrackEntity.class)
+                                "JOIN t.student s " +
+                                "WHERE s.token = :token " +
+                                "AND t.race.status != :finishedStatus", TrackEntity.class)
                 .setParameter("token", studentToken)
+                .setParameter("finishedStatus", RACE_STATUS_FINISHED)
+                .uniqueResult();
+    }
+    public TrackEntity getTrackByRaceIDAndStudentID(int raceId, int studentId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery(
+                        "FROM TrackEntity t " +
+                                "WHERE t.race.id = :raceId " +
+                                "AND t.student.id = :studentId", TrackEntity.class)
+                .setParameter("raceId", raceId)
+                .setParameter("studentId", studentId)
                 .uniqueResult();
     }
 
     public QuestionEntity getQuestionById(int questionId) {
         return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM QuestionEntity q WHERE q.id = :questionId",  QuestionEntity.class)
+                .createQuery("FROM QuestionEntity q WHERE q.id = :questionId", QuestionEntity.class)
                 .setParameter("questionId", questionId)
                 .uniqueResult();
     }
@@ -380,8 +407,7 @@ public class Persist {
                 .setMaxResults(1)
                 .uniqueResult() != null;
     }
-    
-    
+
 
     public ProffesionalEntity getProffesionalByUsernameAndPassword(String username, String password) {
         return this.sessionFactory.getCurrentSession()
@@ -436,8 +462,6 @@ public class Persist {
                 .setParameter("teacherId", teacherId)
                 .uniqueResult();
     }
-
-
 
 
 }
