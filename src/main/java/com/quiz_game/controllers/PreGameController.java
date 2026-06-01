@@ -49,6 +49,13 @@ public class PreGameController {
             if (!persist.isStudentInSpecificRace((StudentEntity) user, raceId)) {
                 return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
             }
+        }else{
+            if(!persist.isTeacherHostingRace((TeacherEntity) user, raceId)){
+                return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+            }
+        }
+        if(race.getStatus() == RACE_STATUS_STARTED){
+            return new BasicResponse(false, ERROR_RACE_ALREADY_STARTED);
         }
 
 

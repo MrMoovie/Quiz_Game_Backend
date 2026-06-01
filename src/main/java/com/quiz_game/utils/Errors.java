@@ -17,6 +17,8 @@ public class Errors {
     public static final int ERROR_UNKNOWN_QUESTION_FOR_TRACK = 1011;
     public static final int ERROR_RACE_CANT_BE_STARTED = 1009;
     public static final int ERROR_ALREADY_HAVE_AN_OPEN_RACE = 1010;
+    public static final int ERROR_RACE_ALREADY_STARTED = 1017;
+
 
 
 
