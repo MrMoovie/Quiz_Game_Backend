@@ -106,7 +106,7 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
 
-        if (race.getCapacity() > race.getMaxCapacity()) {
+        if (race.getCapacity() >= race.getMaxCapacity()) {
             return new BasicResponse(false, ERROR_RACE_IS_FULL);
         }
 
@@ -131,14 +131,6 @@ public class PreGameController {
 
                 sseManager.studentHasJoined(race.getId(), student.getFullName(), track.getId());
             }
-//            if (race.getCapacity() == race.getMaxCapacity()) {
-//                if (race.getStatus() != RACE_STATUS_STARTED) {
-//                    race.setStatus(RACE_STATUS_STARTED);
-//                    persist.save(race);
-//                    // game will automatically start when the race is full:
-//                    sseManager.gameStarted(race.getId());
-//                }
-//            }
             return new JoinRaceResponse(true, null, race.getId(), race.getGoalScore());
         } else {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
@@ -189,16 +181,13 @@ public class PreGameController {
         if (!persist.isTeacherHostingRace(teacher, raceId)) {
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
-//        if (persist.isAnyRaceOpenForTeacher(teacher)) {
-//            return new BasicResponse(false, ERROR_ALREADY_HAVE_AN_OPEN_RACE);
-//        }
         if (race.getStatus() == RACE_STATUS_LOBBY) {
-
+            if (race.getCapacity() == 0){
+                return new BasicResponse(false, ERROR_RACE_CANT_BE_STARTED);
+            }
             race.setStatus(RACE_STATUS_STARTED);
             persist.save(race);
 
-//          List<String> studentTokens = persist.getAllStudentsByRaceID(race.getId()).stream().map(StudentEntity::getToken).toList();
-//          sseManager.gameStarted(studentTokens, race.getId());
             sseManager.gameStarted(race.getId());
 
             return new BasicResponse(true, null);

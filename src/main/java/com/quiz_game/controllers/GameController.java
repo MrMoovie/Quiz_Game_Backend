@@ -37,19 +37,19 @@ public class GameController {
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
         RaceEntity race = persist.getRaceByRaceId(raceId);
-//        if (race == null) {
-//            return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
-//        }
-
-        List<StudentDTO> response = new ArrayList<>();
-        List<StudentEntity> studenList = persist.getAllStudentsByRaceID(raceId);
-        for(StudentEntity student : studenList) {
-            TrackEntity track = persist.getTrackByStudentToken((student.getToken()));
-            StudentDTO studentDTO = new StudentDTO(student.getId(),student.getFullName(),track.getScore(),track.getPath(),track.getPowerUp());
-            response.add(studentDTO);
+        if (race == null) {
+            return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
 
-        return new RaceStudentsResponse(true, null, response, race.getGoalScore());
+        List<StudentEntity> studenList = persist.getAllStudentsByRaceID(raceId);
+        if (studenList == null) {
+            return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
+        }
+        for(StudentEntity student : studenList) {
+            student.setToken("-1");
+        }
+
+        return new RaceStudentsResponse(true, null, studenList, null, race.getGoalScore());
     }
 
     private final Map<String, Map<String,List<Point>>> listOfPoints = getMap();
@@ -275,7 +275,6 @@ public class GameController {
         }
 
         boolean rightAnswer = question.getAnswer() == answer;
-       // System.out.println(rightAnswer);
         //calculate score
         if(rightAnswer) {
             question.setAnswerRight(true);
@@ -286,10 +285,9 @@ public class GameController {
             track.setCurrentQuestionId(question.getId());
             persist.save(track);
             RaceEntity race = track.getRace();
-            if (track.getScore() >= 10){ //CHANGE TO race.getGoalScore()
+            if (track.getScore() >= race.getGoalScore()){
                 race.setStatus(RACE_STATUS_FINISHED);
                 persist.save(race);
-                //clear up (the tracks???) and the questions
                 sseManager.gameFinished(race.getId(), studentEntity.getId() ,studentEntity.getFullName());
             }
             sseManager.scoreEvent(track.getRace().getId(), studentEntity.getId(), track.getScore(), track.getPosition(), track.getCurrentQuestionId());
@@ -309,10 +307,6 @@ public class GameController {
         track.setPathChance(pathChance);
         track.setPowerUp(powerUp);
         persist.save(track);
-
-        //[!]
-       // sseManager.scoreEvent(track.getRace().getId(), track.getStudent().getId(), track.getScore(), track.getPosition());
-
         return new TrackResponse(track);
     }
 
@@ -363,29 +357,23 @@ public class GameController {
             }
         }
 
-        // 4. Construct the DTO collection
-        List<StudentDTO> responseList = new ArrayList<>();
-        List<StudentEntity> studentList = persist.getAllStudentsByRaceID(raceId);
+        List<TrackEntity> trackList = race.getTracks();
+        List<TrackEntity> sortedTracks = trackList.stream()
+                .peek(track -> {
+                    if (track.getStudent() != null) {
+                        track.getStudent().setToken("-1"); // הגנה: ניקוי הטוקן של הסטודנט בתוך הטרק
+                    }
+                })
+                .sorted((trackA, trackB) -> Integer.compare(trackB.getScore(), trackA.getScore())) // מיון לפי score בטרק
+                .toList();
 
-        for (StudentEntity student : studentList) {
-            TrackEntity track = persist.getTrackByRaceIDAndStudentID(raceId, student.getId());
-            if (track != null) {
-                StudentDTO dto = new StudentDTO(
-                        student.getId(),
-                        student.getFullName(),
-                        track.getScore(),
-                        track.getPath(),
-                        track.getPowerUp()
-                );
-                responseList.add(dto);
-            }
-        }
-
-        // 5. Sort descending by score right here on the server
-        responseList.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+        List<StudentEntity> sortedStudents = sortedTracks.stream()
+                .map(TrackEntity::getStudent) // שולף את הסטודנט מתוך הטרק
+                .filter(Objects::nonNull)     // הגנה למקרה שיש טרק בלי סטודנט
+                .toList();
 
         // Reusing your existing RaceStudentsResponse model cleanly!
-        return new RaceStudentsResponse(true, null, responseList, race.getGoalScore());
+        return new RaceStudentsResponse(true, null, sortedStudents,sortedTracks, race.getGoalScore());
     }
 
 

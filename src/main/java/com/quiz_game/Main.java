@@ -26,22 +26,3 @@ public class Main {
     }
 
 }
-
-/*
-    Login [*]
-    SignUP [*]
-    Menu [*]
-    Game [!]
-        fix the flow
-        clear the input
-
-        add SSE
-        Add teachers side
-    Issues:
-        double join [*]
-        add 'in progress' join for student when the game has already started
-        make 'create race' real time for teacher
-        display entry code [*]
-
-        disable the button if the input is empty
- */

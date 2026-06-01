@@ -33,7 +33,7 @@ public class LiveChatController {
     }
 
     private void sendMessage (boolean typing, BasicUser sender, BasicUser receiver, String message) {
-        System.out.println("Sending message to token " + receiver.getToken());
+      //  System.out.println("Sending message to token " + receiver.getToken());
         List<SseEmitter> sessions = this.subscribers.get(receiver.getToken());
         if (sessions != null) {
             JSONObject jsonObject = new JSONObject();
@@ -41,7 +41,7 @@ public class LiveChatController {
             jsonObject.put("content", message);
             jsonObject.put("sender", sender.getFullName());
             jsonObject.put("time", new Date().toString());
-            System.out.println("Total sessions " + sessions.size());
+            //System.out.println("Total sessions " + sessions.size());
             for (SseEmitter sseEmitter : sessions) {
                 try {
                     sseEmitter.send(SseEmitter.event()
@@ -55,27 +55,6 @@ public class LiveChatController {
             }
         }
     }
-
-
-
-
-//    @RequestMapping ("/subscribe")
-//    public SseEmitter subscribe (String token) {
-//        SseEmitter sseEmitter = new SseEmitter(10 * 60 * 1000L);
-//        sseEmitter.onCompletion(() -> {
-//            this.subscribers.get(token).remove(sseEmitter);
-//        });
-//        sseEmitter.onError((event) -> {
-//            this.subscribers.get(token).remove(sseEmitter);
-//        });
-//        List<SseEmitter> currentEmitters = this.subscribers.get(token);
-//        if (currentEmitters == null) {
-//            currentEmitters = new CopyOnWriteArrayList<>();
-//            this.subscribers.put(token, currentEmitters);
-//        }
-//        currentEmitters.add(sseEmitter);
-//        return sseEmitter;
-//    }
 
     @RequestMapping("/send-message")
     public BasicResponse sendMessage(String token, String newMessage, int bidId) {

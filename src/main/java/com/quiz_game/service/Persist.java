@@ -36,7 +36,32 @@ public class Persist {
             sessionFactory.getCurrentSession().saveOrUpdate(object);
         }
     }
+    public void deleteRaceAndComponents(int raceId) {
+        Session session = this.sessionFactory.getCurrentSession();
 
+        // 1. מחיקת כל השאלות ששייכות למסלולים של המירוץ הזה (שימוש ב-HQL נקי)
+        session.createQuery("DELETE FROM QuestionEntity q WHERE q.track.id IN (SELECT t.id FROM TrackEntity t WHERE t.race.id = :raceId)")
+                .setParameter("raceId", raceId)
+                .executeUpdate();
+
+        // 2. מחיקת כל המסלולים (tracks) ששייכים למירוץ הזה
+        session.createQuery("DELETE FROM TrackEntity t WHERE t.race.id = :raceId")
+                .setParameter("raceId", raceId)
+                .executeUpdate();
+
+        // 3. שליפת המירוץ עצמו כדי לנתק אותו מרשימת המורה בזיכרון לפני המחיקה
+        RaceEntity race = session.get(RaceEntity.class, raceId);
+        if (race != null) {
+            TeacherEntity teacher = race.getTeacher();
+            // אם יש לך רשימת מירוצים בתוך TeacherEntity, ננתק את המירוץ ממנה
+            if (teacher != null && teacher.getRaces() != null) {
+                teacher.getRaces().remove(race);
+            }
+
+            // 4. מחיקת המירוץ עצמו בצורה בטוחה
+            session.remove(race);
+        }
+    }
     public <T> void remove(Object o) {
         sessionFactory.getCurrentSession().remove(o);
     }
@@ -282,7 +307,7 @@ public class Persist {
             // 4. Now that the Java lists are completely clear, we safely delete the track object
             session.remove(oldTrack);
 
-            System.out.println("Successfully destroyed abandoned track ID: " + oldTrack.getId());
+            //System.out.println("Successfully destroyed abandoned track ID: " + oldTrack.getId());
         }
     }
 
