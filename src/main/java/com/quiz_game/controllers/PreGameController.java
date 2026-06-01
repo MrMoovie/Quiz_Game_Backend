@@ -37,17 +37,23 @@ public class PreGameController {
 
     @RequestMapping("lobby-info")
     public BasicResponse getLobbyInfo(Integer raceId, String token) {
-        StudentEntity student = persist.getStudentByToken(token);
-        TeacherEntity teacher = persist.getTeacherByToken(token);
-        if (student == null && teacher == null) {
+        BasicUser user = persist.getUserByToken(token);
+        if (user == null) {
             return new BasicResponse(false, ERROR_WRONG_CREDENTIALS);
         }
         RaceEntity race = persist.getRaceByRaceId(raceId);
         if (race == null) {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
+        if (user instanceof StudentEntity) {
+            if (!persist.isStudentInSpecificRace((StudentEntity) user, raceId)) {
+                return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
+            }
+        }
+
+
         List<StudentEntity> studentsInRace = persist.getAllStudentsByRaceID(race.getId());
-        for(StudentEntity studentEntity : studentsInRace){
+        for (StudentEntity studentEntity : studentsInRace) {
             studentEntity.setToken("-1");
         }
         return new LobbyInfoResponse(true, null, race.getTeacher().getFullName(), studentsInRace);
@@ -138,7 +144,7 @@ public class PreGameController {
         StudentEntity student = persist.getStudentByToken(token);
         if (student != null) {
             List<RaceEntity> races = persist.getAllRaces();
-            for(RaceEntity race : races){
+            for (RaceEntity race : races) {
                 race.setEntryCode("-1");
             }
             return new RacesResponse(true, races);
