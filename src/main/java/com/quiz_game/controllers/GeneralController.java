@@ -38,7 +38,10 @@ public class GeneralController {
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadDataOnStartup() {
-        this.loadTestData();
+        ActionEntity actionEntity = persist.getRandomAction();
+        if (actionEntity == null) {
+            this.loadTestData();
+        }
     }
 
     @RequestMapping("get-user-type")

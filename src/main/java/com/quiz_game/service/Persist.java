@@ -7,11 +7,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
-import java.util.Random;
 
 import static com.quiz_game.utils.Constants.RACE_STATUS_FINISHED;
 
@@ -21,7 +17,6 @@ import static com.quiz_game.utils.Constants.RACE_STATUS_FINISHED;
 @SuppressWarnings("unchecked")
 public class Persist {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Persist.class);
 
     private final SessionFactory sessionFactory;
 
@@ -31,11 +26,6 @@ public class Persist {
         this.sessionFactory = sf;
     }
 
-    public <T> void saveAll(List<T> objects) {
-        for (T object : objects) {
-            sessionFactory.getCurrentSession().saveOrUpdate(object);
-        }
-    }
     public void deleteRaceAndComponents(int raceId) {
         Session session = this.sessionFactory.getCurrentSession();
 
@@ -62,9 +52,6 @@ public class Persist {
             session.remove(race);
         }
     }
-    public <T> void remove(Object o) {
-        sessionFactory.getCurrentSession().remove(o);
-    }
 
     public Session getQuerySession() {
         return sessionFactory.getCurrentSession();
@@ -77,33 +64,6 @@ public class Persist {
     public <T> T loadObject(Class<T> clazz, int oid) {
         return this.getQuerySession().get(clazz, oid);
     }
-
-    public <T> List<T> loadList(Class<T> clazz) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM " + clazz.getSimpleName()).list();
-    }
-
-//  >> NOT RELEVANT TO OUR PROJECT << //
-//    public BasicUser getUserByUsername(String username) {
-//        BasicUser user = getClientByUsername(username);
-//        if (user == null) {
-//            user = getProffesionalByUsername(username);
-//        }
-//        return user;
-//    }
-//    public ClientEntity getClientByUsername(String username) {
-//        return this.sessionFactory.getCurrentSession()
-//                .createQuery("FROM ClientEntity " + " WHERE username = :username ", ClientEntity.class)
-//                .setParameter("username", username)
-//                .uniqueResult();
-//    }
-//    public ProffesionalEntity getProffesionalByUsername(String username) {
-//        return this.sessionFactory.getCurrentSession()
-//                .createQuery("FROM ProffesionalEntity " + " WHERE username = :username ", ProffesionalEntity.class)
-//                .setParameter("username", username)
-//                .uniqueResult();
-//    }
-
 
     //sign_in and sign_up
     public StudentEntity getStudentByUsername(String username) {
@@ -128,70 +88,6 @@ public class Persist {
         return user;
     }
 
-
-    public StudentEntity getStudentByUsernameAndPassword(String username, String password) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM StudentEntity  " +
-                        "WHERE username = :username " +
-                        "AND password = :password", StudentEntity.class)
-                .setParameter("username", username)
-                .setParameter("password", password)
-                .uniqueResult();
-    }
-
-    public TeacherEntity getTeacherByUsernameAndPassword(String username, String password) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM TeacherEntity  " +
-                        "WHERE username = :username " +
-                        "AND password = :password", TeacherEntity.class)
-                .setParameter("username", username)
-                .setParameter("password", password)
-                .uniqueResult();
-    }
-
-    public BasicUser getUserByUsernameAndPassword(String username, String password) {
-        BasicUser user = getStudentByUsernameAndPassword(username, password);
-        if (user == null) {
-            user = getTeacherByUsernameAndPassword(username, password);
-        }
-        return user;
-    }
-
-    public List<PostEntity> getPostsByClientId(int clientId) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM PostEntity " +
-                        "WHERE clientEntity.id = :clientId", PostEntity.class)
-                .setParameter("clientId", clientId)
-                .list();
-    }
-
-    public List<PostEntity> getAllPost() {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM PostEntity", PostEntity.class)
-                .list();
-    }
-
-    public List<CategoryEntity> getAllCategories() {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM CategoryEntity", CategoryEntity.class)
-                .list();
-    }
-
-    public PostEntity getPostByPostId(int id) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM PostEntity " +
-                        "WHERE id = :id", PostEntity.class)
-                .setParameter("id", id)
-                .uniqueResult();
-    }
-
-    public CategoryEntity getCategoryByCategoryId(int id) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM CategoryEntity " +
-                        "WHERE id = :id", CategoryEntity.class)
-                .setParameter("id", id)
-                .uniqueResult();
-    }
 
     public ClientEntity getClientByToken(String token) {
         return this.sessionFactory.getCurrentSession()
@@ -311,13 +207,6 @@ public class Persist {
         }
     }
 
-    public QuestionTemplateEntity getQuestionTemplateByQuestionId(int questionId) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM QuestionTemplateEntity q WHERE q.id = :questionId", QuestionTemplateEntity.class)
-                .setParameter("questionId", questionId)
-                .uniqueResult();
-    }
-
     public RaceEntity getRaceByRaceId(int raceId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM RaceEntity r WHERE r.id = :raceId", RaceEntity.class)
@@ -332,15 +221,6 @@ public class Persist {
                 .uniqueResult();
     }
 
-    //    public TrackEntity getTrackByStudentToken(String studentToken) {
-//        return this.sessionFactory.getCurrentSession()
-//                .createQuery(
-//                        "SELECT t FROM TrackEntity t " +
-//                                "JOIN t.student s " + // מניח שיש קשר ב-Entity בין Track ל-Student
-//                                "WHERE s.token = :token", TrackEntity.class)
-//                .setParameter("token", studentToken)
-//                .uniqueResult();
-//    }
     public TrackEntity getTrackByStudentToken(String studentToken) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery(
@@ -350,16 +230,6 @@ public class Persist {
                                 "AND t.race.status != :finishedStatus", TrackEntity.class)
                 .setParameter("token", studentToken)
                 .setParameter("finishedStatus", RACE_STATUS_FINISHED)
-                .uniqueResult();
-    }
-    public TrackEntity getTrackByRaceIDAndStudentID(int raceId, int studentId) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery(
-                        "FROM TrackEntity t " +
-                                "WHERE t.race.id = :raceId " +
-                                "AND t.student.id = :studentId", TrackEntity.class)
-                .setParameter("raceId", raceId)
-                .setParameter("studentId", studentId)
                 .uniqueResult();
     }
 
@@ -415,14 +285,6 @@ public class Persist {
                 .list();
     }
 
-    public boolean isAnyRaceOpenForTeacher(TeacherEntity teacher) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("SELECT 1 FROM RaceEntity r WHERE r.status = 1 AND r.teacher = :teacher", Integer.class)
-                .setParameter("teacher", teacher)
-                .setMaxResults(1)
-                .uniqueResult() != null;
-    }
-
 
     public boolean isStudentInAnyNonFinishedRace(StudentEntity student) {
         return this.sessionFactory.getCurrentSession()
@@ -433,17 +295,6 @@ public class Persist {
                 .uniqueResult() != null;
     }
 
-
-    public ProffesionalEntity getProffesionalByUsernameAndPassword(String username, String password) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM ProffesionalEntity " +
-                        "WHERE username = :username " +
-                        "AND password = :password", ProffesionalEntity.class)
-                .setParameter("username", username)
-                .setParameter("password", password)
-                .uniqueResult();
-    }
-
     public BasicUser getUserByToken(String token) {
         BasicUser user = getStudentByToken(token);
         if (user == null) {
@@ -451,42 +302,5 @@ public class Persist {
         }
         return user;
     }
-
-    public List<BidEntity> getBidsByProfessionalId(int professionalId) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM BidEntity " +
-                        "WHERE proffesionalEntity.id = :professionalId", BidEntity.class)
-                .setParameter("professionalId", professionalId)
-                .list();
-    }
-
-    public List<BidEntity> getProposalsByClientId(int clientId) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery(
-                        "FROM BidEntity bid " +
-                                "WHERE bid.postEntity.clientEntity.id = :clientId", BidEntity.class)
-                .setParameter("clientId", clientId)
-                .list();
-    }
-
-    public List<MessageEntity> getConversation(int bidId) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery(
-                        "FROM MessageEntity msg " +
-                                "WHERE msg.bidEntity.id = :bidId " +
-                                "ORDER BY msg.id DESC ",
-                        MessageEntity.class)
-                .setParameter("bidId", bidId)
-                .setMaxResults(10)
-                .list();
-    }
-
-    public RaceEntity getRaceByTeacherId(int teacherId) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM RaceEntity " + " WHERE teacher_id = :teacherId ", RaceEntity.class)
-                .setParameter("teacherId", teacherId)
-                .uniqueResult();
-    }
-
 
 }
