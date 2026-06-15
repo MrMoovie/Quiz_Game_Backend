@@ -16,7 +16,6 @@ public class LobbyInfoResponse extends BasicResponse{
         for(StudentEntity st : students){
             Map<String, Object> stringObjectMap = new HashMap<>();
             stringObjectMap.put("name", st.getFullName());
-//            stringObjectMap.put("trackId");
             this.students.add(stringObjectMap);
         }
     }

@@ -26,7 +26,6 @@ public class SseManager {
 
         // 2. Check if an emitter already exists for this token in this race
         if (roomSubscribers.containsKey(token)) {
-           // System.out.println("[SSE] Returning existing emitter for token in Race ID: " + raceId);
             return roomSubscribers.get(token);
         }
 
@@ -41,7 +40,6 @@ public class SseManager {
         // Store the new emitter mapped to the token
         roomSubscribers.put(token, sseEmitter);
 
-       // System.out.println("[SSE] New user subscribed to Race ID: " + raceId);
 
         return sseEmitter;
     }
@@ -66,7 +64,6 @@ public class SseManager {
             jsonObject.put("event", "RACE_CREATED");
 
             sendEvent(sessions, "race-created", jsonObject.toString());
-          //  System.out.println("[SSE] Broadcasted new race to global menu.");
         }
     }
 
@@ -80,7 +77,6 @@ public class SseManager {
             json.put("trackId", trackId);
 
             sendEvent(sessions, "lobby-update", json.toString());
-          //  System.out.println("[SSE] Broadcasted student join to Race ID: " + raceId);
         }
     }
 
@@ -95,7 +91,6 @@ public class SseManager {
             jsonObject.put("position", newPosition);
             jsonObject.put("currentQuestionId", currentQuestionId);
 
-           // System.out.println("score earned "+scoreEarned);
             sendEvent(sessions, "score-update", jsonObject.toString());
         }
     }
@@ -110,7 +105,6 @@ public class SseManager {
             jsonObject.put("raceId", raceId);
 
             sendEvent(sessions, "game-started", jsonObject.toString());
-        //    System.out.println("[SSE] Broadcasted game start to Race ID: " + raceId);
         }
     }
 
@@ -126,7 +120,6 @@ public class SseManager {
             jsonObject.put("winnerName", winnerName);
 
             sendEvent(sessions, "game-finished", jsonObject.toString());
-            // System.out.println("[SSE] Broadcasted game finish to Race ID: " + raceId);
         }
     }
 

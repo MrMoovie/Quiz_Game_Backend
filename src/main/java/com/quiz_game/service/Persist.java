@@ -29,26 +29,21 @@ public class Persist {
     public void deleteRaceAndComponents(int raceId) {
         Session session = this.sessionFactory.getCurrentSession();
 
-        // 1. מחיקת כל השאלות ששייכות למסלולים של המירוץ הזה (שימוש ב-HQL נקי)
         session.createQuery("DELETE FROM QuestionEntity q WHERE q.track.id IN (SELECT t.id FROM TrackEntity t WHERE t.race.id = :raceId)")
                 .setParameter("raceId", raceId)
                 .executeUpdate();
 
-        // 2. מחיקת כל המסלולים (tracks) ששייכים למירוץ הזה
         session.createQuery("DELETE FROM TrackEntity t WHERE t.race.id = :raceId")
                 .setParameter("raceId", raceId)
                 .executeUpdate();
 
-        // 3. שליפת המירוץ עצמו כדי לנתק אותו מרשימת המורה בזיכרון לפני המחיקה
         RaceEntity race = session.get(RaceEntity.class, raceId);
         if (race != null) {
             TeacherEntity teacher = race.getTeacher();
-            // אם יש לך רשימת מירוצים בתוך TeacherEntity, ננתק את המירוץ ממנה
             if (teacher != null && teacher.getRaces() != null) {
                 teacher.getRaces().remove(race);
             }
 
-            // 4. מחיקת המירוץ עצמו בצורה בטוחה
             session.remove(race);
         }
     }
@@ -65,7 +60,6 @@ public class Persist {
         return this.getQuerySession().get(clazz, oid);
     }
 
-    //sign_in and sign_up
     public StudentEntity getStudentByUsername(String username) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM StudentEntity " + " WHERE username = :username ", StudentEntity.class)
@@ -181,12 +175,10 @@ public class Persist {
                 .getResultList();
 
         for (TrackEntity oldTrack : activeTracks) {
-            // 1. Delete questions (HQL is perfect here because Track doesn't hold a list of questions in Java)
             session.createQuery("DELETE FROM QuestionEntity q WHERE q.track.id = :trackId")
                     .setParameter("trackId", oldTrack.getId())
                     .executeUpdate();
 
-            // 2. Break the link to the Race so Hibernate doesn't resurrect it!
             RaceEntity oldRace = oldTrack.getRace();
             if (oldRace != null) {
                 if (oldRace.getTracks() != null) {
@@ -196,15 +188,12 @@ public class Persist {
                 session.saveOrUpdate(oldRace);
             }
 
-            // 3. Break the link to the Student so Hibernate doesn't resurrect it!
             if (student.getGameHistory() != null) {
                 student.getGameHistory().remove(oldTrack); // Removes it from the Java memory list
             }
 
-            // 4. Now that the Java lists are completely clear, we safely delete the track object
             session.remove(oldTrack);
 
-            //System.out.println("Successfully destroyed abandoned track ID: " + oldTrack.getId());
         }
     }
 

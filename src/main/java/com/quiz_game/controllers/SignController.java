@@ -22,10 +22,6 @@ public class SignController {
     @Autowired
     private Persist persist;
 
-    /**
-     * הרשמה למערכת - Sign Up
-     * מקבל: שם משתמש, סיסמה, שם מלא וסוג משתמש
-     */
     @PostMapping("/signup")
     public BasicResponse addUser(int selectedType, String username, String password, String confirmPassword, String fullName) {
         if (isNotValidating(fullName) || !fullName.trim().contains(" ")) {

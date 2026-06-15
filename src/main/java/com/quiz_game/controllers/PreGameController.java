@@ -96,7 +96,6 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
 
-        // 1. Validate the entryCode first so we don't get a NullPointerException
         if (entryCode == null || entryCode.trim().isEmpty()) {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
@@ -106,7 +105,6 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
 
-        // 2. Check if the student is ALREADY in this specific race
         boolean isStudentInThisRace = persist.isStudentInSpecificRace(student, race.getId());
 
         if (race.getCapacity() >= race.getMaxCapacity() && !isStudentInThisRace) {
@@ -114,12 +112,10 @@ public class PreGameController {
         }
 
 
-        // 3. THE CLEANUP: If they are joining a new race, but left an old one unfinished, delete the old tracks!
         if (!isStudentInThisRace && persist.isStudentInAnyNonFinishedRace(student)) {
             persist.cleanUpUnfinishedTracksForStudent(student);
         }
 
-        // 4. Put them in the new race!
         if (race.getStatus() == RACE_STATUS_LOBBY) {
             if (!isStudentInThisRace) {
                 TrackEntity track = new TrackEntity();

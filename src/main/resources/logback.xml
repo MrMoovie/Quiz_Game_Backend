@@ -23,10 +23,6 @@
 
     <logger name="org.hibernate.engine.query.spi" level="ERROR" />
 
-    <!--<logger name="org.hibernate.stat" level="DEBUG" />-->
-    <!--<logger name="org.hibernate.cache" level="DEBUG" />-->
-    <!--<logger name="org.hibernate" level="DEBUG" />-->
-
     <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE"/>

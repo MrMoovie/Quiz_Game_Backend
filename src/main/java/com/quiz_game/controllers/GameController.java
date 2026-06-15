@@ -31,9 +31,9 @@ public class GameController {
     public BasicResponse getAllStudents(String teacherToken, int raceId) {
         TeacherEntity teacherEntity = persist.getTeacherByToken(teacherToken);
         if (teacherEntity == null) {
-            return new BasicResponse(false, ERROR_NOT_AUTHORIZED); //ERROR_WRONG_CREDENTIALS
+            return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
-        if (!persist.isTeacherHostingRace(teacherEntity, raceId)) { // Can do only getRaces and check for null
+        if (!persist.isTeacherHostingRace(teacherEntity, raceId)) {
             return new BasicResponse(false, ERROR_UNKNOWN_RACE_FOR_TEACHER);
         }
         RaceEntity race = persist.getRaceByRaceId(raceId);
@@ -59,60 +59,54 @@ public class GameController {
         switch (operation) {
             case "+":
                 if ("Easy".equals(level)) {
-                    num1 = random.nextInt(9) + 1; // 1 to 9
+                    num1 = random.nextInt(9) + 1;
                     num2 = random.nextInt(9) + 1;
                 } else if ("Medium".equals(level)) {
-                    num1 = random.nextInt(90) + 10; // 10 to 99
+                    num1 = random.nextInt(90) + 10;
                     num2 = random.nextInt(90) + 10;
                 } else { // Hard
-                    num1 = random.nextInt(900) + 100; // 100 to 999
+                    num1 = random.nextInt(900) + 100;
                     num2 = random.nextInt(900) + 100;
                 }
                 break;
 
             case "-":
                 if ("Easy".equals(level)) {
-                    num1 = random.nextInt(9) + 2; // 2 to 10
-                    num2 = random.nextInt(num1 - 1) + 1; // Assures positive answer
+                    num1 = random.nextInt(9) + 2;
+                    num2 = random.nextInt(num1 - 1) + 1;
                 } else if ("Medium".equals(level)) {
-                    num1 = random.nextInt(90) + 10; // 10 to 99
+                    num1 = random.nextInt(90) + 10;
                     num2 = random.nextInt(num1 - 1) + 1;
                 } else { // Hard
-                    num1 = random.nextInt(900) + 100; // 100 to 999
+                    num1 = random.nextInt(900) + 100;
                     num2 = random.nextInt(num1 - 1) + 1;
                 }
                 break;
 
             case "*":
                 if ("Easy".equals(level)) {
-                    // Focus: Core times tables up to 10x10
-                    num1 = random.nextInt(9) + 2; // 2 to 10
-                    num2 = random.nextInt(9) + 2; // 2 to 10
+                    num1 = random.nextInt(9) + 2;
+                    num2 = random.nextInt(9) + 2;
                 } else if ("Medium".equals(level)) {
-                    // Focus: Small 2-digit numbers by a single digit (e.g., 14 x 4 or 25 x 3)
-                    num1 = random.nextInt(15) + 11; // 11 to 25
-                    num2 = random.nextInt(5) + 2;   // 2 to 6
+                    num1 = random.nextInt(15) + 11;
+                    num2 = random.nextInt(5) + 2;
                 } else { // Hard
-                    // Focus: Harder 2-digit by 1-digit, forcing mental grouping (e.g., 84 x 7)
-                    num1 = random.nextInt(75) + 15; // 15 to 89
-                    num2 = random.nextInt(7) + 3;   // 3 to 9
+                    num1 = random.nextInt(75) + 15;
+                    num2 = random.nextInt(7) + 3;
                 }
                 break;
 
             case "/":
                 int divisor, answer;
                 if ("Easy".equals(level)) {
-                    // Focus: Clean reversals of basic times tables (e.g., 42 / 6 = 7)
-                    divisor = random.nextInt(9) + 2; // 2 to 10
-                    answer = random.nextInt(9) + 2;  // 2 to 10
+                    divisor = random.nextInt(9) + 2;
+                    answer = random.nextInt(9) + 2;
                 } else if ("Medium".equals(level)) {
-                    // Focus: Divisor is a single digit, answer is a clean teen (e.g., 72 / 4 = 18)
-                    divisor = random.nextInt(7) + 2;  // 2 to 8
-                    answer = random.nextInt(10) + 11; // 11 to 20
+                    divisor = random.nextInt(7) + 2;
+                    answer = random.nextInt(10) + 11;
                 } else { // Hard
-                    // Focus: Standard middle school limits (e.g., 144 / 12 = 12 or 225 / 9 = 25)
-                    divisor = random.nextInt(11) + 2; // 2 to 12
-                    answer = random.nextInt(25) + 11; // 11 to 35
+                    divisor = random.nextInt(11) + 2;
+                    answer = random.nextInt(25) + 11;
                 }
                 num1 = divisor * answer;
                 num2 = divisor;
@@ -146,12 +140,6 @@ public class GameController {
 
         NameEntity name = persist.getRandomName();
 
-        Random random = new Random();
-
-//        List<Point> points = listOfPoints.get(action.getActionOperation()).get(level);
-//        int index = random.nextInt(points.size());
-//        int num1 = points.get(index).x;
-//        int num2 = points.get(index).y;
         Point generatedNumbers = generateDynamicNumbers(action.getActionOperation(), level);
         int num1 = generatedNumbers.x;
         int num2 = generatedNumbers.y;
@@ -213,7 +201,6 @@ public class GameController {
         }
 
         boolean rightAnswer = question.getAnswer() == answer;
-        //calculate score
         if(rightAnswer) {
             question.setAnswerRight(true);
             persist.save(question);
@@ -231,7 +218,6 @@ public class GameController {
                 persist.save(race);
                 sseManager.gameFinished(race.getId(), studentEntity.getId() ,studentEntity.getFullName());
 
-                //bfr deleting we can add a function to save the history compactly(in a vector or something).
                 persist.deleteAllQuestionsByRaceId(race.getId());
             }
         }
@@ -304,18 +290,17 @@ public class GameController {
         List<TrackEntity> sortedTracks = trackList.stream()
                 .peek(track -> {
                     if (track.getStudent() != null) {
-                        track.getStudent().setToken("-1"); // הגנה: ניקוי הטוקן של הסטודנט בתוך הטרק
+                        track.getStudent().setToken("-1");
                     }
                 })
-                .sorted((trackA, trackB) -> Integer.compare(trackB.getScore(), trackA.getScore())) // מיון לפי score בטרק
+                .sorted((trackA, trackB) -> Integer.compare(trackB.getScore(), trackA.getScore()))
                 .toList();
 
         List<StudentEntity> sortedStudents = sortedTracks.stream()
-                .map(TrackEntity::getStudent) // שולף את הסטודנט מתוך הטרק
-                .filter(Objects::nonNull)     // הגנה למקרה שיש טרק בלי סטודנט
+                .map(TrackEntity::getStudent)
+                .filter(Objects::nonNull)
                 .toList();
 
-        // Reusing your existing RaceStudentsResponse model cleanly!
         return new RaceStudentsResponse(true, null, sortedStudents,sortedTracks, race.getGoalScore());
     }
 

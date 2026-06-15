@@ -57,27 +57,22 @@ public class GeneralController {
     @RequestMapping("/test")
     public BasicResponse loadTestData() {
         try {
-            // Make sure your file in src/main/resources is renamed to test-data.sql
             Resource resource = new ClassPathResource("test-data.sql");
             ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator(resource);
 
-            // Execute the script against your database
             databasePopulator.execute(dataSource);
 
             return new BasicResponse(true, null);
         } catch (Exception e) {
-            e.printStackTrace();
             return new BasicResponse(false, 1);
         }
     }
     @RequestMapping("/delete-race")
     public BasicResponse deleteRace(int raceId) {
         try {
-            // בודקים קודם כל אם המירוץ אכן קיים במערכת
             RaceEntity race = persist.getRaceByRaceId(raceId);
 
             if (race != null) {
-                // הפעלת פונקציית המחיקה המדורגת שבנינו בתוך Persist
                 persist.deleteRaceAndComponents(raceId);
                 return new BasicResponse(true, null);
             } else {
@@ -85,8 +80,6 @@ public class GeneralController {
             }
 
         } catch (Exception e) {
-            // הדפסת השגיאה ללוג במידה ומשהו נכשל
-            e.printStackTrace();
             return new BasicResponse(false, ERROR_NOT_AUTHORIZED);
         }
     }
