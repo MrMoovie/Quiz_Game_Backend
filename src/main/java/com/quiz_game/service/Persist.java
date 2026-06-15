@@ -89,13 +89,7 @@ public class Persist {
     }
 
 
-    public ClientEntity getClientByToken(String token) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM ClientEntity " +
-                        "WHERE token = :token", ClientEntity.class)
-                .setParameter("token", token)
-                .uniqueResult();
-    }
+
 
     public List<StudentEntity> getAllStudentsByRaceID(int raceId) {
         return this.sessionFactory.getCurrentSession()
@@ -240,13 +234,7 @@ public class Persist {
                 .uniqueResult();
     }
 
-    public ProffesionalEntity getProfessionalByToken(String token) {
-        return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM ProffesionalEntity " +
-                        "WHERE token = :token", ProffesionalEntity.class)
-                .setParameter("token", token)
-                .uniqueResult();
-    }
+
 
     public TeacherEntity getTeacherByToken(String token) {
         return this.sessionFactory.getCurrentSession()

@@ -8,10 +8,6 @@
         <id name="id" type="int" column="id">
             <generator class="native"/>
         </id>
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
-        <!--        </property>-->
         <property name="username" type="string" column="username"/>
         <property name="password" type="string" column="password"/>
         <property name="contactInfo" type="string" column="contact_info"/>
@@ -28,10 +24,6 @@
         <id name="id" type="int" column="id">
             <generator class="native"/>
         </id>
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
-        <!--        </property>-->
         <property name="username" type="string" column="username"/>
         <property name="password" type="string" column="password"/>
         <property name="contactInfo" type="string" column="contact_info"/>
@@ -44,43 +36,7 @@
         </bag>
     </class>
 
-    <!--    <class name="com.quiz_game.entities.ClassroomEntity" table="classrooms" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        &lt;!&ndash;        <property name="creationDate" type="timestamp" column="creation_date"/>&ndash;&gt;-->
-    <!--        &lt;!&ndash;        <property name="deleted" type="boolean">&ndash;&gt;-->
-    <!--        &lt;!&ndash;            <column name="deleted" default="false"/>&ndash;&gt;-->
-    <!--        &lt;!&ndash;        </property>&ndash;&gt;-->
 
-    <!--        <property name="className" type="string" column="class_name"/>-->
-    <!--    </class>-->
-
-    <!--    <class name="com.quiz_game.entities.ClassStudentsEntity" table="class_student" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        &lt;!&ndash;        <property name="creationDate" type="timestamp" column="creation_date"/>&ndash;&gt;-->
-    <!--        &lt;!&ndash;        <property name="deleted" type="boolean">&ndash;&gt;-->
-    <!--        &lt;!&ndash;            <column name="deleted" default="false"/>&ndash;&gt;-->
-    <!--        &lt;!&ndash;        </property>&ndash;&gt;-->
-    <!--        <many-to-one name="classroom" class="com.quiz_game.entities.ClassroomEntity" column="classroom_id"/>-->
-
-    <!--        <many-to-one name="student" class="com.quiz_game.entities.StudentEntity" column="student_id"/>-->
-    <!--    </class>-->
-
-    <!--    <class name="com.quiz_game.entities.ClassTeachersEntity" table="class_teacher" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        &lt;!&ndash;        <property name="creationDate" type="timestamp" column="creation_date"/>&ndash;&gt;-->
-    <!--        &lt;!&ndash;        <property name="deleted" type="boolean">&ndash;&gt;-->
-    <!--        &lt;!&ndash;            <column name="deleted" default="false"/>&ndash;&gt;-->
-    <!--        &lt;!&ndash;        </property>&ndash;&gt;-->
-    <!--        <many-to-one name="classroom" class="com.quiz_game.entities.ClassroomEntity" column="classroom_id"/>-->
-
-    <!--        <many-to-one name="teacher" class="com.quiz_game.entities.TeacherEntity" column="teacher_id"/>-->
-    <!--    </class>-->
 
 
     <class name="com.quiz_game.entities.RaceEntity" table="races" lazy="false">
@@ -89,10 +45,6 @@
         </id>
         <many-to-one name="teacher" class="com.quiz_game.entities.TeacherEntity" column="teacher_id"/>
 
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
-        <!--        </property>-->
 
         <property name="entryCode" type="string" column="entry_code"/>
         <property name="capacity" type="int">
@@ -139,10 +91,7 @@
         <property name="currentQuestionId" type="int">
             <column name="current_question_id" default="0"/>
         </property>
-        <!--        </property>-->
-        <!--        <property name="creationDate" type="timestamp" column="creation_date"/>-->
-        <!--        <property name="deleted" type="boolean">-->
-        <!--            <column name="deleted" default="false"/>-->
+
     </class>
 
 
@@ -207,75 +156,7 @@
     </class>
 
 
-    <!--    <class name="com.quiz_game.entities.ProffesionalEntity" table="professional" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        <property name="deleted" type="boolean">-->
-    <!--            <column name="deleted" default="false"/>-->
-    <!--        </property>-->
-    <!--        <property name="username" type="string" column="username"/>-->
-    <!--        <property name="password" type="string" column="password"/>-->
-    <!--        <property name="contactInfo" type="string" column="contact_info"/>-->
-    <!--        <property name="fullName" type="string" column="full_name"/>-->
-    <!--        <property name="areas" type="string" column="areas"/>-->
-    <!--        <property name="plan" type="int" column="plan"/>-->
-    <!--        <property name="token" type="string" column="token"/>-->
-    <!--    </class>-->
 
-    <!--    <class name="com.quiz_game.entities.CategoryEntity" table="categories" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        <property name="deleted" type="boolean">-->
-    <!--            <column name="deleted" default="false"/>-->
-    <!--        </property>-->
-    <!--        <property name="name" type="string" column="name"/>-->
-    <!--    </class>-->
-
-
-    <!--    <class name="com.quiz_game.entities.PostEntity" table="posts" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        <property name="deleted" type="boolean">-->
-    <!--            <column name="deleted" default="false"/>-->
-    <!--        </property>-->
-    <!--        <many-to-one name="clientEntity" column="client_id"-->
-    <!--                     class="com.quiz_game.entities.ClientEntity"/>-->
-    <!--        <property name="text" type="string" column="text"/>-->
-    <!--        <many-to-one name="categoryEntity" column="category_id"-->
-    <!--                     class="com.quiz_game.entities.CategoryEntity"/>-->
-    <!--        <property name="area" type="string" column="area"/>-->
-    <!--        <property name="fileLink" type="string" column="file_link"/>-->
-
-    <!--    </class>-->
-
-    <!--    <class name="com.quiz_game.entities.BidEntity" table="bids" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        <many-to-one name="proffesionalEntity" column="proffessional_id"-->
-    <!--                     class="com.quiz_game.entities.ProffesionalEntity"/>-->
-    <!--        <many-to-one name="postEntity" column="post_id"-->
-    <!--                     class="com.quiz_game.entities.PostEntity"/>-->
-    <!--        <property name="status" type="int" column="status"/>-->
-    <!--        <property name="proposedPrice" type="float" column="proposed_price"/>-->
-    <!--        <property name="description" type="text" column="description"/>-->
-
-    <!--    </class>-->
-
-
-    <!--    <class name="com.quiz_game.entities.MessageEntity" table="messages" lazy="false">-->
-    <!--        <id name="id" type="int" column="id">-->
-    <!--            <generator class="native"/>-->
-    <!--        </id>-->
-    <!--        <many-to-one name="bidEntity" column="bid_id"-->
-    <!--                     class="com.quiz_game.entities.BidEntity"/>-->
-    <!--        <property name="content" type="string" column="content"/>-->
-    <!--        <property name="client" type="boolean" column="client"/>-->
-    <!--        <property name="creationDate" type="java.util.Date" column="creation_date"/>-->
-    <!--    </class>-->
 
 
 </hibernate-mapping>
