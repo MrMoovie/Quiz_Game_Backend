@@ -164,7 +164,14 @@ public class Persist {
         return count != null && count > 0;
     }
 
-    public void removeUnfinishedTracksForStudent(StudentEntity student) {
+    public void deleteAllQuestionsByRaceId(int raceId) {
+        this.sessionFactory.getCurrentSession()
+                .createQuery("DELETE FROM QuestionEntity q WHERE q.track.id IN (SELECT t.id FROM TrackEntity t WHERE t.race.id = :raceId)")
+                .setParameter("raceId", raceId)
+                .executeUpdate();
+    }
+
+    public void cleanUpUnfinishedTracksForStudent(StudentEntity student) {
         Session session = this.sessionFactory.getCurrentSession();
 
         List<TrackEntity> activeTracks = session

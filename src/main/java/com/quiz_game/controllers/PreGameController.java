@@ -106,16 +106,17 @@ public class PreGameController {
             return new BasicResponse(false, ERROR_MISSING_VALUES);
         }
 
-        if (race.getCapacity() >= race.getMaxCapacity()) {
-            return new BasicResponse(false, ERROR_RACE_IS_FULL);
-        }
-
         // 2. Check if the student is ALREADY in this specific race
         boolean isStudentInThisRace = persist.isStudentInSpecificRace(student, race.getId());
 
+        if (race.getCapacity() >= race.getMaxCapacity() && !isStudentInThisRace) {
+            return new BasicResponse(false, ERROR_RACE_IS_FULL);
+        }
+
+
         // 3. THE CLEANUP: If they are joining a new race, but left an old one unfinished, delete the old tracks!
         if (!isStudentInThisRace && persist.isStudentInAnyNonFinishedRace(student)) {
-            persist.removeUnfinishedTracksForStudent(student);
+            persist.cleanUpUnfinishedTracksForStudent(student);
         }
 
         // 4. Put them in the new race!
